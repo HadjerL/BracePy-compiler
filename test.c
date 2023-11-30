@@ -34,7 +34,7 @@ NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, 
     NodeSymbol *nodeSymbol = (NodeSymbol *)malloc(sizeof(NodeSymbol));
     nodeSymbol->tokenId = tokenId;
     nodeSymbol->tokenType = tokenType;
-    strcpy(nodeSymbol->symbolName, "variable");
+    strcpy(nodeSymbol->symbolName, symbolName);
     nodeSymbol->scope = scope;
     nodeSymbol->next = NULL;
     nodeSymbol->previous = q;
@@ -49,6 +49,7 @@ NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, 
     symboleTable->last = nodeSymbol;
     return nodeSymbol;
 }
+
 /*******************************************************************************/
 /** Insertion d'une attribue dans la liste des symbole **/
 NodeAttribute *InsertAttribute(NodeSymbol *nodeSymbol, char *name, char *value)
@@ -68,6 +69,7 @@ NodeAttribute *InsertAttribute(NodeSymbol *nodeSymbol, char *name, char *value)
     nodeSymbol->last = nodeAttribute;
     return nodeAttribute;
 }
+
 
 /*******************************************************************************/
 /** L'affichage de la liste des attribues**/
@@ -100,9 +102,13 @@ void displaySymbolTable(SymboleTable *symboleTable)
     {
         printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
         printf("--------------------------------------\n");
-        displaySymbolAttributes(p);
+        // displaySymbolAttributes(p);
         p= p->next;
     }
+}
+
+void deleteAttribute(NodeAttribute *nodeAttribute){
+
 }
 
 
@@ -112,9 +118,21 @@ int main(){
     NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 2, 1, "Variable",0);
     NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 3, 1, "Variable",0);
     NodeSymbol *p = search(symbolTable,1);
-    printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
-    InsertAttribute(p,"my_variable","Hello world");
     displaySymbolTable(symbolTable);
-    printf("Hello zorld");
+    printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
     return 0;
 }
+
+/*
+typedef struct NodeSymbole
+{
+    int tokenId; 
+    int tokenType;   
+    char symbolName[50];
+    int scope;
+    NodeSymbole *next; 
+    NodeSymbole *previous; 
+    NodeAttribut *first;      
+    NodeAttribut *last;        
+
+} NodeSymbole;*/
