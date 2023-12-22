@@ -34,7 +34,7 @@ NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, 
     NodeSymbol *nodeSymbol = (NodeSymbol *)malloc(sizeof(NodeSymbol));
     nodeSymbol->tokenId = tokenId;
     nodeSymbol->tokenType = tokenType;
-    strcpy(nodeSymbol->symbolName, symbolName);
+    strcpy(nodeSymbol->symbolName, "variable");
     nodeSymbol->scope = scope;
     nodeSymbol->next = NULL;
     nodeSymbol->previous = q;
@@ -49,7 +49,6 @@ NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, 
     symboleTable->last = nodeSymbol;
     return nodeSymbol;
 }
-
 /*******************************************************************************/
 /** Insertion d'une attribue dans la liste des symbole **/
 NodeAttribute *InsertAttribute(NodeSymbol *nodeSymbol, char *name, char *value)
@@ -70,7 +69,6 @@ NodeAttribute *InsertAttribute(NodeSymbol *nodeSymbol, char *name, char *value)
     return nodeAttribute;
 }
 
-
 /*******************************************************************************/
 /** L'affichage de la liste des attribues**/
 void displaySymbolAttributes(NodeSymbol *nodeSymbol)
@@ -79,8 +77,8 @@ void displaySymbolAttributes(NodeSymbol *nodeSymbol)
     if(q!=NULL)
     {    
         NodeAttribute *p = q;
-            printf("|Attribute Name|Attribute Value|\n");
-            printf("--------------------------------------\n");
+        printf("|Attribute Name|Attribute Value|\n");
+        printf("--------------------------------------\n");
         while (p != NULL)
         {
             printf("|%s|%s|\n",p->name,p->value);
@@ -102,13 +100,27 @@ void displaySymbolTable(SymboleTable *symboleTable)
     {
         printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
         printf("--------------------------------------\n");
-        // displaySymbolAttributes(p);
+        displaySymbolAttributes(p);
         p= p->next;
     }
 }
 
-void deleteAttribute(NodeAttribute *nodeAttribute){
-
+/*******************************************************************************/
+/** La supression de tout les attributs d'un symbol **/
+void deleteAllAttributes(NodeSymbol *nodesymbol)
+{
+    NodeAttribute *current= nodesymbol->first;
+    if(current!=NULL)
+    {    
+        NodeAttribute *next = current;
+        while (current != NULL)
+        {
+            next= current->next;
+            free(current);
+            current = next;
+        }
+        nodesymbol = NULL;
+    }
 }
 
 
@@ -118,21 +130,13 @@ int main(){
     NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 2, 1, "Variable",0);
     NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 3, 1, "Variable",0);
     NodeSymbol *p = search(symbolTable,1);
-    displaySymbolTable(symbolTable);
     printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
+    InsertAttribute(p,"my_variable","Hello world");
+    displaySymbolTable(symbolTable);
+    deleteAllAttributes(p);
+    displaySymbolTable(symbolTable);
+    printf("Hello zorld");
     return 0;
 }
 
-/*
-typedef struct NodeSymbole
-{
-    int tokenId; 
-    int tokenType;   
-    char symbolName[50];
-    int scope;
-    NodeSymbole *next; 
-    NodeSymbole *previous; 
-    NodeAttribut *first;      
-    NodeAttribut *last;        
 
-} NodeSymbole;*/
