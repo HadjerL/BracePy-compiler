@@ -6,7 +6,6 @@ SymboleTable *allocateSymboleTable()
     SymboleTable *symboleTable = (SymboleTable *)malloc(sizeof(SymboleTable));
     symboleTable->first = NULL;
     symboleTable->last = NULL;
-    symboleTable->size = 0;
     return symboleTable;
 }
 /*******************************************************************************/
@@ -28,18 +27,18 @@ NodeSymbol *search(SymboleTable *symboleTable, int tokenId)
 }
 /*******************************************************************************/
 /** Insertion d'une entree dans la table de symbol **/
-NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, char *symbolName, int scope)
+NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType,char *tokenValue, char *symbolName,bool isConstant)
 {
     NodeSymbol *q= symboleTable->last;
     NodeSymbol *nodeSymbol = (NodeSymbol *)malloc(sizeof(NodeSymbol));
     nodeSymbol->tokenId = tokenId;
     nodeSymbol->tokenType = tokenType;
-    strcpy(nodeSymbol->symbolName, "variable");
-    nodeSymbol->scope = scope;
+    strcpy(nodeSymbol->tokenValue, tokenValue);
+    nodeSymbol->isConstant = isConstant;
+    nodeSymbol->hasBeenInitialized = false;
+    strcpy(nodeSymbol->symbolName, symbolName);
     nodeSymbol->next = NULL;
     nodeSymbol->previous = q;
-    nodeSymbol->first = NULL;
-    nodeSymbol->last = NULL;
     if (q==NULL){
         symboleTable->first = nodeSymbol;
     }
@@ -50,43 +49,7 @@ NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, 
     return nodeSymbol;
 }
 /*******************************************************************************/
-/** Insertion d'une attribue dans la liste des symbole **/
-NodeAttribute *InsertAttribute(NodeSymbol *nodeSymbol, char *name, char *value)
-{
-    NodeAttribute *q= nodeSymbol->last;
-    NodeAttribute *nodeAttribute = (NodeAttribute *)malloc(sizeof(NodeAttribute));
-    strcpy(nodeAttribute->name, name);
-    strcpy(nodeAttribute->value, value);
-    nodeAttribute->next = NULL;
-    nodeAttribute->previous = q;
-    if (q==NULL){
-        nodeSymbol->first = nodeAttribute;
-    }
-    else{
-        q->next = nodeAttribute;
-    }
-    nodeSymbol->last = nodeAttribute;
-    return nodeAttribute;
-}
 
-/*******************************************************************************/
-/** L'affichage de la liste des attribues**/
-void displaySymbolAttributes(NodeSymbol *nodeSymbol)
-{
-    NodeAttribute *q= nodeSymbol->first;
-    if(q!=NULL)
-    {    
-        NodeAttribute *p = q;
-        printf("|Attribute Name|Attribute Value|\n");
-        printf("--------------------------------------\n");
-        while (p != NULL)
-        {
-            printf("|%s|%s|\n",p->name,p->value);
-            printf("--------------------------------------\n");
-            p= p->next;
-        }
-    }
-}
 
 /*******************************************************************************/
 /** L'affichage de la table des symbols**/
@@ -94,48 +57,106 @@ void displaySymbolTable(SymboleTable *symboleTable)
 {
     NodeSymbol *q= symboleTable->first;
     NodeSymbol *p = q;
-        printf("|Token Id|Token Type|Symbol Name|Scope|\n");
+        printf("|Token Id|Token Type|Symbol Name|hasBeenInitialized|isConstant|\n");
         printf("--------------------------------------\n");
     while (p != NULL)
     {
-        printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
+        printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
         printf("--------------------------------------\n");
-        displaySymbolAttributes(p);
         p= p->next;
     }
 }
 
 /*******************************************************************************/
-/** La supression de tout les attributs d'un symbol **/
-void deleteAllAttributes(NodeSymbol *nodesymbol)
-{
-    NodeAttribute *current= nodesymbol->first;
-    if(current!=NULL)
-    {    
-        NodeAttribute *next = current;
-        while (current != NULL)
-        {
-            next= current->next;
-            free(current);
-            current = next;
-        }
-        nodesymbol = NULL;
+
+/*******************************************************************************/
+/** Recuperer le nom de de symbole **/
+char *getName(NodeSymbol *nodeSymbole){
+    if(nodeSymbole != NULL && nodeSymbole->symbolName!= NULL){
+        return nodeSymbole->symbolName;
     }
 }
+/*******************************************************************************/
 
+/*******************************************************************************/
+/** Recuperer la valeur de de symbole **/
+char *getValue(NodeSymbol *nodeSymbole){
+    if(nodeSymbole != NULL &&  nodeSymbole->tokenValue != NULL){
+        return  nodeSymbole->tokenValue;
+    }
+}
+/*******************************************************************************/
+
+/*******************************************************************************/
+/** Recuperer la valeur de de symbole **/
+int getType(NodeSymbol *nodeSymbole){
+    if(nodeSymbole != NULL && nodeSymbole->tokenType != NULL){
+        return nodeSymbole->tokenType;
+    }
+}
+/*******************************************************************************/
+
+/*******************************************************************************/
+/** Recuperer le nom de type de de symbole **/
+char *getRealType(int type){
+    switch (type){
+        case TYPE_INTEGER:
+            return "integer";
+            break;
+        case TYPE_FLOAT:
+            return"Float";
+            break;
+        case TYPE_STRING:
+            return "String";
+            break;
+        case TYPE_BOOLEAN:
+            return"Boolean";
+            break;
+        default:
+            break;
+    }
+}
+/*******************************************************************************/
+
+/*******************************************************************************/
+/** setting value to a symbol**/
+void setValue(NodeSymbol *nodeSymbole, char *value){
+    if(nodeSymbole == NULL){
+        printf("Value not set because symbole is NULL");
+        return;
+    }
+
+    if(nodeSymbole->hasBeenInitialized && nodeSymbole->isConstant){
+        printf("Can't reassign a vlue to a constant");
+        return;
+    }
+    nodeSymbole->hasBeenInitialized = true;
+
+}
+/*******************************************************************************/
+
+
+
+// char *getValue(NodeSymbol *nodeSymbole);
+// int getType(NodeSymbol *nodeSymbole);
+// char *getRealType(NodeSymbol *nodeSymbole);
+// void setValue(NodeSymbol *nodeSymbole, char *value);
 
 int main(){
     SymboleTable *symbolTable = allocateSymboleTable();
-    NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1, 1, "Variable",0);
-    NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 2, 1, "Variable",0);
-    NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 3, 1, "Variable",0);
+    NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1, 1,"2", "Variable",true);
+    NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 2, 1,"r", "Variable",false);
+    NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 3, 1, "Serine","Variable",true);
     NodeSymbol *p = search(symbolTable,1);
-    printf("|%d|%d|%s|%d|\n",p->tokenId,p->tokenType,p->symbolName, p->scope);
-    InsertAttribute(p,"my_variable","Hello world");
+    printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
     displaySymbolTable(symbolTable);
-    deleteAllAttributes(p);
-    displaySymbolTable(symbolTable);
-    printf("Hello zorld");
+    printf(getName(p));
+    printf(getValue(p));
+    printf("%s",getType(p));
+    printf(getRealType(getType(p)));
+    setValue(p,"lol");
+    printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
+    printf("Hello world");
     return 0;
 }
 

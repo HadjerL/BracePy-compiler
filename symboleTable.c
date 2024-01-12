@@ -106,6 +106,7 @@ void displaySymbolTable(SymboleTable *symboleTable)
 }
 
 
+
 int main(){
     SymboleTable *symbolTable = allocateSymboleTable();
     NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1, 1, "Variable",0);

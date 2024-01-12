@@ -3,29 +3,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+#define TYPE_BOOLEAN 0
+#define TYPE_INTEGER 1
+#define TYPE_FLOAT 2
+#define TYPE_STRING 3
 
 /*Structure*/
 /*************************************************************************************/
-typedef struct NodeAttribute
-{   
-    char name[50];
-    char value[50];
-    struct NodeAttribute *next;
-    struct NodeAttribute *previous;
-
-} NodeAttribute;
 
 typedef struct NodeSymbol
 {
     int tokenId; 
     int tokenType;   
     char symbolName[50];
-    int scope;
+    char tokenValue[50];
+    bool isConstant;
+    bool hasBeenInitialized;
     struct NodeSymbol *next; 
-    struct NodeSymbol *previous; 
-    NodeAttribute *first;      
-    NodeAttribute *last;        
-
+    struct NodeSymbol *previous;
 } NodeSymbol;
 
 
@@ -34,7 +31,6 @@ typedef struct SymboleTable
 {
     NodeSymbol *first;
     NodeSymbol *last;
-    int size;
 
 } SymboleTable;
 
@@ -43,17 +39,16 @@ typedef struct SymboleTable
 /*Entetes*/
 /*****************************************************************************************/
 SymboleTable *allocateSymboleTable();  
-NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType, char symbolName[], int scope);
-NodeAttribute *InsertAttribute(NodeSymbol *nodeSymbol, char *name, char *value);
+NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType,char *tokenValue, char *symbolName,bool isConstant);
 NodeSymbol *search(SymboleTable *symboleTable, int tokenId);  
-void deleteAllAttributes(NodeSymbol *nodesymbol);
 void deletetoken(NodeSymbol *nodeSymbole);
 void deletSymboleTable(SymboleTable  *symboleTable);
-void addAttributByPointer(NodeSymbol *nodeSymbole, char *name, char *value);
-void addAttributByIndex(SymboleTable *symboleTable, int tokenId ,char *name, char *value);
-void displaySymbolAttributes(NodeSymbol *nodeSymbol);
 void displaySymbolTable(SymboleTable *symboleTable);
+char *getName(NodeSymbol *nodeSymbole);
+char *getValue(NodeSymbol *nodeSymbole);
+int getType(NodeSymbol *nodeSymbole);
+char *getRealType(int type);
+void setValue(NodeSymbol *nodeSymbole, char *value);
+
 /*****************************************************************************************/
 #endif
-
-
