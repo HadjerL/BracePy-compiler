@@ -130,7 +130,9 @@ void setValue(NodeSymbol *nodeSymbole, char *value){
         printf("Can't reassign a vlue to a constant");
         return;
     }
+    strcpy(nodeSymbole->tokenValue, value);
     nodeSymbole->hasBeenInitialized = true;
+
 
 }
 /*******************************************************************************/
@@ -152,8 +154,9 @@ int main(){
     displaySymbolTable(symbolTable);
     printf(getName(p));
     printf(getValue(p));
-    printf("%s",getType(p));
-    printf(getRealType(getType(p)));
+    printf("%d\n", 5);
+    printf("%d\n ",getType(p));
+    printf("%s\n",getRealType(getType(p)));
     setValue(p,"lol");
     printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
     printf("Hello world");
