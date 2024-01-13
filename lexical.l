@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "global.h"
-#include "y.tab.h" 
+#include "syntaxic.tab.h" 
 
 extern void yysuccess(char *s);
 extern void yyerror(const char *s);

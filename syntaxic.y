@@ -10,14 +10,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "symbole.h"
-#include "symbole.c"
+#include "symboleTable.h"
 #include "stockSauv.h"
-#include "stockSauv.c"
 #include "structure.h"
-#include "structure.c"
 #include "quadruplet.h"
-#include "quadruplet.c"
 }
 
 
@@ -38,19 +34,32 @@
 }
 
 %type <NodeSymbol> DeclarationSimple;
+%type <expression> Expression;
+%type <variable> Variable;
+%type <type> SimpleType;
+%type <tableau> Tableau;
 
-%token  TOK_INT  TOK_STR TOK_FLOAT TOK_BOOL TOK_ARRAY TOK_TYPE 
+
+
+%token <type> TOK_INT  TOK_STR TOK_FLOAT TOK_BOOL 
+%token TOK_ARRAY TOK_TYPE 
 %token  TOK_CONST  TOK_IF  TOK_ELSE  TOK_ELIF TOK_RETURN TOK_SWITCH
 %token  TOK_CASE  TOK_BREAK  TOK_DEFAULT TOK_FOR TOK_WHILE 
 %token  TOK_FOREACH TOK_IN TOK_INPUT TOK_PRINT TOK_DEF  TOK_AS 
 %token  TOK_FROM TOK_IMPORT
-%token  TOK_INT_T TOK_FLOAT_T TOK_STR_T TOK_BOOl_T TOK_TRUE TOK_FALSE
+%token <valeurInteger> TOK_INT_T
+%token <valeurFloat> TOK_FLOAT_T 
+%token <valeurString> TOK_STR_T 
+%token TOK_BOOl_T 
+%token <Valeurboolean> TOK_TRUE 
+%token <Valeurboolean> TOK_FALSE
 %token  TOK_ADD TOK_SUB TOK_MUL TOK_DIV TOK_MOD TOK_INC TOK_DEC
 %token  TOK_POW  TOK_FLOOR_DIV TOK_ADD_ASSIGN TOK_SUB_ASSIGN 
 %token  TOK_MUL_ASSIGN TOK_DIV_ASSIGN TOK_MOD_ASSIGN
 %token  TOK_NOT TOK_AND TOK_OR TOK_EQ TOK_GT TOK_LT TOK_GE TOK_LE 
 %token  TOK_NE
-%token  TOK_ID TOK_AFFECT TOK_PAR_OUV TOK_PAR_FER TOK_ACC_OUV 
+%token <nomVariable> TOK_ID 
+%token TOK_AFFECT TOK_PAR_OUV TOK_PAR_FER TOK_ACC_OUV 
 %token  TOK_ACC_FER TOK_CRO_OUV TOK_CRO_FER TOK_POINT TOK_VIRGULE
 %token  TOK_DEUX_POINTS TOK_POINT_VIRGULE
 %left TOK_VIRGULE
@@ -73,14 +82,14 @@
     extern int yylineno;
     extern int yyleng;
     extern int yylex();
-    char* file = "prg.txt";
+    char* file = "test.txt";
     int currentColumn = 1;
     void yysuccess(char *s);
     void yyerror(const char *s);
     void showLexicalError();
-    SymboleTable * SymboleTable = NULL;
-    stockSauv * stockSauv;
-    quadruplet * quad;
+    SymboleTable * symboleTable = NULL;
+    stockSauv * StockSauv;
+    quad * Quadruplet;
     int qc = 1;
     
 %}
@@ -110,8 +119,10 @@ TypeDeRetour:
     ; */
 
 SimpleType:
-TOK_INT|TOK_STR| TOK_FLOAT| TOK_BOOL;//ask about meriem
-
+    TOK_INT { $$ = TYPE_INTEGER; }
+    |TOK_STR { $$ = TYPE_STRING; }
+    |TOK_FLOAT { $$ = TYPE_FLOAT; }
+    |TOK_BOOL { $$ = TYPE_BOOLEAN; };
 //ask serine
 
 BracketLoop:
@@ -147,10 +158,9 @@ DeclarationInitialisation:
 
 DeclarationSimple:
     SimpleType TOK_ID {
-        if(search(SymboleTable, $2) == NULL){
+        if(search(symboleTable, $2) == NULL){
             // Si l'ID n'existe pas alors l'inserer
-            NodeSymbol * newNodeSymbole = InsertEntry(SymboleTable,$2,$1,NULL,)creerSymbole($2, $1, false, 0);
-            insererSymbole(&tableSymboles, newNodeSymbole);
+            NodeSymbol * newNodeSymbole = InsertEntry(symboleTable,$1,NULL,$2,false);
             $$ = newNodeSymbole;
         }else{
             printf("Identifiant deja declare : %s\n", $2);
@@ -340,21 +350,21 @@ int main (void){
         printf("error while opening file\n");
         return 1;
     }
-    stockSauv = (stockSauv *)malloc(sizeof(stockSauv));
-    SymboleTable = allocateSymboleTable();
     else {
         printf("file successfully opened\n");
     }
+    StockSauv = (stockSauv *)malloc(sizeof(stockSauv));
+    symboleTable = allocateSymboleTable();
     if (yyparse() == 0) {
         printf("Parsing successful\n");
     } else {
         fprintf(stderr, "Parsing failed\n");
         return 1;
     }
-    displaySymbolTable(SymboleTable);
-    displayQuad(quad);
-    if(SymboleTable != NULL){
-        free(SymboleTable);
+    displaySymbolTable(symboleTable);
+    displayQuad(Quadruplet);
+    if(symboleTable != NULL){
+        free(symboleTable);
     }
     fclose(yyin);
     return 0;
