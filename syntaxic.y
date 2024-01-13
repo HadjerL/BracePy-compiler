@@ -1,16 +1,43 @@
 %define parse.error verbose
 %{
+#define simpleTypeNb 4
+#define YYDEBUG 1
+%}
 
+%code requires{
 #include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "symbole.h"
+#include "symbole.c"
+#include "stockSauv.h"
+#include "stockSauv.c"
+#include "structure.h"
+#include "structure.c"
+#include "quadruplet.h"
+#include "quadruplet.c"
+}
 
-%}
 
+%union{
+    int type;
+    char nomVariable[50];
+    bool isVariable;
+    char valeurString[255];
+    int valeurInteger;
+    double valeurFloat;
+    bool Valeurboolean;
+    bool isConstant;
 
+    NodeSymbol * NodeSymbol;
+    expression expression;
+    tableau tableau;
+    variable variable;
+}
 
+%type <NodeSymbol> DeclarationSimple;
 
 %token  TOK_INT  TOK_STR TOK_FLOAT TOK_BOOL TOK_ARRAY TOK_TYPE 
 %token  TOK_CONST  TOK_IF  TOK_ELSE  TOK_ELIF TOK_RETURN TOK_SWITCH
@@ -51,6 +78,11 @@
     void yysuccess(char *s);
     void yyerror(const char *s);
     void showLexicalError();
+    SymboleTable * SymboleTable = NULL;
+    stockSauv * stockSauv;
+    quadruplet * quad;
+    int qc = 1;
+    
 %}
 
 %%
@@ -114,7 +146,17 @@ DeclarationInitialisation:
     ;
 
 DeclarationSimple:
-    SimpleType TOK_ID
+    SimpleType TOK_ID {
+        if(search(SymboleTable, $2) == NULL){
+            // Si l'ID n'existe pas alors l'inserer
+            NodeSymbol * newNodeSymbole = InsertEntry(SymboleTable,$2,$1,NULL,)creerSymbole($2, $1, false, 0);
+            insererSymbole(&tableSymboles, newNodeSymbole);
+            $$ = newNodeSymbole;
+        }else{
+            printf("Identifiant deja declare : %s\n", $2);
+            $$ = NULL;
+        }
+    }
     | Array TOK_ID;
 
 /* TypeCompose:
@@ -292,11 +334,14 @@ void yyerror(const char *s) {
 }
 
 int main (void){
+    yydebug = 1;
     yyin = fopen(file,"r");
     if(yyin == NULL){
         printf("error while opening file\n");
         return 1;
     }
+    stockSauv = (stockSauv *)malloc(sizeof(stockSauv));
+    SymboleTable = allocateSymboleTable();
     else {
         printf("file successfully opened\n");
     }
@@ -306,7 +351,11 @@ int main (void){
         fprintf(stderr, "Parsing failed\n");
         return 1;
     }
-
+    displaySymbolTable(SymboleTable);
+    displayQuad(quad);
+    if(SymboleTable != NULL){
+        free(SymboleTable);
+    }
     fclose(yyin);
     return 0;
 }

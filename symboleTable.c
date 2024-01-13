@@ -11,13 +11,13 @@ SymboleTable *allocateSymboleTable()
 /*******************************************************************************/
 /** Recherche naive **/
 
-NodeSymbol *search(SymboleTable *symboleTable, int tokenId)
+NodeSymbol *search(SymboleTable *symboleTable, char *symbolName)
 {
    NodeSymbol *q= symboleTable->first;
    NodeSymbol *p = q;
     while (p != NULL)
     {
-        if (p->tokenId == tokenId)
+        if (strcmp(p->symbolName,symbolName)==0)
         {
             return p;
         }
@@ -27,11 +27,10 @@ NodeSymbol *search(SymboleTable *symboleTable, int tokenId)
 }
 /*******************************************************************************/
 /** Insertion d'une entree dans la table de symbol **/
-NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType,char *tokenValue, char *symbolName,bool isConstant)
+NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenType, char *tokenValue, char *symbolName, bool isConstant)
 {
     NodeSymbol *q= symboleTable->last;
     NodeSymbol *nodeSymbol = (NodeSymbol *)malloc(sizeof(NodeSymbol));
-    nodeSymbol->tokenId = tokenId;
     nodeSymbol->tokenType = tokenType;
     strcpy(nodeSymbol->tokenValue, tokenValue);
     nodeSymbol->isConstant = isConstant;
@@ -61,7 +60,7 @@ void displaySymbolTable(SymboleTable *symboleTable)
         printf("--------------------------------------\n");
     while (p != NULL)
     {
-        printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
+        printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
         printf("--------------------------------------\n");
         p= p->next;
     }
@@ -146,11 +145,11 @@ void setValue(NodeSymbol *nodeSymbole, char *value){
 
 int main(){
     SymboleTable *symbolTable = allocateSymboleTable();
-    NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1, 1,"2", "Variable",true);
-    NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 2, 1,"r", "Variable",false);
-    NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 3, 1, "Serine","Variable",true);
-    NodeSymbol *p = search(symbolTable,1);
-    printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
+    NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1,"2", "Variable1",true);
+    NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 1,"r", "Variable1",false);
+    NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 1, "Serine","Variable1",true);
+    NodeSymbol *p = search(symbolTable,"Variable1");
+    printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
     displaySymbolTable(symbolTable);
     printf(getName(p));
     printf(getValue(p));
@@ -158,7 +157,7 @@ int main(){
     printf("%d\n ",getType(p));
     printf("%s\n",getRealType(getType(p)));
     setValue(p,"lol");
-    printf("|%d|%d|%s|%s|%s|%s|\n",p->tokenId,p->tokenType,p->tokenValue,p->symbolName, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
+    printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
     printf("Hello world");
     return 0;
 }

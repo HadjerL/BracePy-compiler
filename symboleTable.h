@@ -15,7 +15,6 @@
 
 typedef struct NodeSymbol
 {
-    int tokenId; 
     int tokenType;   
     char symbolName[50];
     char tokenValue[50];
@@ -39,10 +38,8 @@ typedef struct SymboleTable
 /*Entetes*/
 /*****************************************************************************************/
 SymboleTable *allocateSymboleTable();  
-NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenId, int tokenType,char *tokenValue, char *symbolName,bool isConstant);
-NodeSymbol *search(SymboleTable *symboleTable, int tokenId);  
-void deletetoken(NodeSymbol *nodeSymbole);
-void deletSymboleTable(SymboleTable  *symboleTable);
+NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenType,char *tokenValue, char *symbolName,bool isConstant);
+NodeSymbol *search(SymboleTable *symboleTable, char *symbolName);  
 void displaySymbolTable(SymboleTable *symboleTable);
 char *getName(NodeSymbol *nodeSymbole);
 char *getValue(NodeSymbol *nodeSymbole);

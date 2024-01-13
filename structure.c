@@ -1,5 +1,5 @@
 #include "structure.h"
-#include "tableSymboles.h"
+#include "symboleTable.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
