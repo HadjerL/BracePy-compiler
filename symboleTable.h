@@ -38,7 +38,7 @@ typedef struct SymboleTable
 /*Entetes*/
 /*****************************************************************************************/
 SymboleTable *allocateSymboleTable();  
-NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenType,char *tokenValue, char *symbolName,bool isConstant);
+NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenType ,char *symbolName,bool isConstant);
 NodeSymbol *search(SymboleTable *symboleTable, char *symbolName);  
 void displaySymbolTable(SymboleTable *symboleTable);
 char *getName(NodeSymbol *nodeSymbole);

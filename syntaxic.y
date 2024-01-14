@@ -164,7 +164,7 @@ DeclarationSimple:
     SimpleType TOK_ID {
         if(search(symboleTable, $2) == NULL){
             // Si l'ID n'existe pas alors l'inserer
-            NodeSymbol * newNodeSymbole = InsertEntry(symboleTable,$1,NULL,$2,false);
+            NodeSymbol * newNodeSymbole = InsertEntry(symboleTable,$1,$2,false);
             $$ = newNodeSymbole;
         }else{
             printf("Identifiant deja declare : %s\n", $2);

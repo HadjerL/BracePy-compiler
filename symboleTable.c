@@ -27,12 +27,11 @@ NodeSymbol *search(SymboleTable *symboleTable, char *symbolName)
 }
 /*******************************************************************************/
 /** Insertion d'une entree dans la table de symbol **/
-NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenType, char *tokenValue, char *symbolName, bool isConstant)
+NodeSymbol *InsertEntry(SymboleTable *symboleTable, int tokenType, char *symbolName, bool isConstant)
 {
     NodeSymbol *q= symboleTable->last;
     NodeSymbol *nodeSymbol = (NodeSymbol *)malloc(sizeof(NodeSymbol));
     nodeSymbol->tokenType = tokenType;
-    strcpy(nodeSymbol->tokenValue, tokenValue);
     nodeSymbol->isConstant = isConstant;
     nodeSymbol->hasBeenInitialized = false;
     strcpy(nodeSymbol->symbolName, symbolName);

@@ -1720,7 +1720,7 @@ yyreduce:
                       {
         if(search(symboleTable, (yyvsp[0].nomVariable)) == NULL){
             // Si l'ID n'existe pas alors l'inserer
-            NodeSymbol * newNodeSymbole = InsertEntry(symboleTable,(yyvsp[-1].type),NULL,(yyvsp[0].nomVariable),false);
+            NodeSymbol * newNodeSymbole = InsertEntry(symboleTable,(yyvsp[-1].type),(yyvsp[0].nomVariable),false);
             (yyval.NodeSymbol) = newNodeSymbole;
         }else{
             printf("Identifiant deja declare : %s\n", (yyvsp[0].nomVariable));
