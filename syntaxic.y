@@ -157,8 +157,7 @@ Statement:
     | TOK_RETURN Expression TOK_POINT_VIRGULE;
 
 DeclarationInitialisation:
-    DeclarationSimple PureAffectation
-    | TOK_CONST DeclarationSimple PureAffectation
+    DeclarationSimple TOK_AFFECT Expression
     ;
 
 DeclarationSimple:
@@ -172,6 +171,7 @@ DeclarationSimple:
             $$ = NULL;
         }
     }
+    | TOK_CONST SimpleType TOK_ID
     | Array TOK_ID;
 
 /* TypeCompose:
@@ -215,7 +215,6 @@ Expression:
     | Expression TOK_AFFECT Expression
     | Expression TOK_LE Expression
     | Expression TOK_LT Expression
-
     | Expression TOK_GT Expression
     | Expression TOK_GE Expression
     | Expression TOK_NE Expression
@@ -260,29 +259,75 @@ BracketExpressionLoop:
 
 
 Affectation:
-    Variable PureAffectation
-    | Variable RapidAffectation
+    Variable TOK_AFFECT Expression
+    | Variable TOK_INC {
+        if($1.nodeSymbol != NULL){
+            if(!$1.nodeSymbol->hasBeenInitialized){
+                yyerrorSemantic( "Variable not initialized");
+            }else{
+                if($1.nodeSymbol->isConstant){
+                    yyerrorSemantic("Cannot reassign a value to a constant");
+                }else{
+                if($1.nodeSymbol->type != TYPE_FLOAT
+                && $1.nodeSymbol->type != TYPE_INTEGER){
+                    yyerrorSemantic( "Non numeric variable found");
+                }else{
+                    char valeurString[255];
+                    if($1.nodeSymbol->type < simpleTypeNb)
+                        {
+                            getValeur($1.nodeSymbol, valeurString);
+                            if(isForLoop){
+                                pushFifo(quadFifo, creerQuadreplet("ADD", $1.nodeSymbol->nom, "1", $1.nodeSymbol->nom, qc));
+                            }else{
+                                insererQuadreplet(&q, "ADD", $1.nodeSymbol->nom, "1", $1.nodeSymbol->nom, qc);
+                                qc++;
+                            }
+                        
+                        }
+                    else
+                        {
+                            getArrayElement($1.nodeSymbol, $1.index, valeurString);
+                            char buff[255];
+                            sprintf(buff, "%s[%d]", $1.nodeSymbol->nom, $1.index);
+                        if(isForLoop){
+                            pushFifo(quadFifo, creerQuadreplet("ADD", buff, "1", buff, qc));
+                        }else{
+                            insererQuadreplet(&q, "ADD", buff, "1", buff, qc);
+                            qc++;
+                        }
+                        }
+                    if($1.nodeSymbol->type % simpleTypeNb == TYPE_INTEGER){
+                        int valeur = atoi(valeurString);
+                        valeur++;
+                        sprintf(valeurString, "%d", valeur);
+                    }else{
+                        double valeur = atof(valeurString);
+                        valeur++;
+                        sprintf(valeurString,"%.4f",valeur);
+                    };
+                    if($1.nodeSymbol->type < simpleTypeNb)
+                        {
+                            setValeur($1.nodeSymbol, valeurString);
+                        }
+                    else
+                        {
+                            setArrayElement($1.nodeSymbol, $1.index, valeurString);
+                        }
+                }
+            }
+        }
+        }
+    }
+    | Variable TOK_DEC
+    | Variable TOK_ADD_ASSIGN Expression
+    | Variable TOK_SUB_ASSIGN Expression
+    | Variable TOK_MUL_ASSIGN Expression
+    | Variable TOK_DIV_ASSIGN Expression
+    | Variable TOK_MOD_ASSIGN Expression
+    ;
     ;
 
-PureAffectation:
-    TOK_AFFECT Expression
-    | TOK_AFFECT Tableau
-    | TOK_POINT Affectation
-    ;
 
-RapidAffectation:
-    OperateurUnaire
-    | TOK_ADD_ASSIGN Expression
-    | TOK_SUB_ASSIGN Expression
-    | TOK_MUL_ASSIGN Expression
-    | TOK_DIV_ASSIGN Expression
-    | TOK_MOD_ASSIGN Expression
-    ;
-
-OperateurUnaire:
-    TOK_INC 
-    |TOK_DEC
-    ;
 
 Condition:
     TOK_IF TOK_PAR_OUV Expression TOK_PAR_FER TOK_ACC_OUV Bloc TOK_ACC_FER ConditionElIf
