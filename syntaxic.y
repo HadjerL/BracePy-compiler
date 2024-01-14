@@ -214,6 +214,8 @@ Expression:
     | TOK_ADD Expression
     | Expression TOK_AFFECT Expression
     | Expression TOK_LE Expression
+    | Expression TOK_LT Expression
+
     | Expression TOK_GT Expression
     | Expression TOK_GE Expression
     | Expression TOK_NE Expression
@@ -233,8 +235,8 @@ Valeur:
     TOK_INT_T
     | TOK_FLOAT_T
     | TOK_STR_T
-    | TOK_TRUE { $$.type = TYPE_BOOLEAN; $$.booleanValue = $1; }
-    | TOK_FALSE { $$.type = TYPE_BOOLEAN; $$.booleanValue = $1; }
+    | TOK_TRUE { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
+    | TOK_FALSE { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
     ;
 
 Variable:
@@ -305,9 +307,56 @@ Boucle:
     | For
     ;
 
+
+
 While:
-    TOK_WHILE TOK_PAR_OUV Expression TOK_PAR_FER TOK_ACC_OUV Bloc TOK_ACC_FER
-    ;
+    DebutWhile Bloc TOK_ACC_FER { // routineFinWhile
+    // ici c'est la fin du while
+	char adresse[10];
+    char adresseCondWhile [10];
+    // on depile deux foix pour avoire l'addresse de condition du while pour se 
+    // brancher vers la condition du while inconditionnelemnt (evaluer la condition pour la prochaine iteration)
+    int sauvAdrDebutWhile = supprimer(StockSauv);//  c'est l'adr de debut while car c'est la derniere 
+    // qui a ete empilé
+    int sauvAdrCondWhile = supprimer(StockSauv); // l'adr de condition
+    // on l'ecrit dans une chaine
+    sprintf(adresseCondWhile,"%d",sauvAdrCondWhile);
+    // on insert un quadreplet pour pour se brancher vers la condition du while
+Quadruplet =  addQuad (Quadruplet,"BR",adresseCondWhile,"","",qc);
+hola();
+
+    qc++;
+    // updater l'adr du branchement vers la fin (le prochain bloc d'instructions) crée dans debut while
+    sprintf(adresse,"%d",qc);
+    
+
+    Quadruplet = updateQuad(Quadruplet ,qc, adresse);
+
+}
+;
+DebutWhile : 
+    ConditionWhile Expression TOK_PAR_FER  TOK_ACC_OUV { //routineDebutWhile
+    // ici c'est le debut de while
+    if($2.type == TYPE_BOOLEAN){
+        char r[10]; // contien le resultat de l'expression de la condition
+        sprintf(r,"R%d",qc-1);	// this writes R to the r string
+        Quadruplet =  addQuad (Quadruplet,"BZ","tmp","",r,qc); // jump if condition returns false(0) 
+        // to finWhile
+		ajouter(StockSauv,qc); // on sauvgarde l'addresse de cette quadreplet pour updater le
+        // quadreplet
+		qc++;
+    }else{
+        yyerrorSemantic( "Non boolean expression found");
+    }
+}
+;
+ConditionWhile:
+    TOK_WHILE TOK_PAR_OUV { // routineCondWhile
+    // ici on est avant la condition du while
+    ajouter(StockSauv,qc); // on sauvgarde l'addresse de cette quadreplet 
+    // it think it's qc-1 car on incrémonte le qc aprés l'insertion
+}
+;
 
 
 For: 
