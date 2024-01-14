@@ -21,8 +21,6 @@ struct tableau{
 typedef struct variable variable;
 struct variable{
     struct nodeSymbole * nodeSymbole;
-    int index;
-    char indexString[20];
 };
 
 

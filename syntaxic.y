@@ -230,18 +230,26 @@ Expression:
     | Variable;
 
 Valeur:
-    TOK_INT_T
-    | TOK_FLOAT_T
-    | TOK_STR_T
-    | TOK_TRUE { $$.type = TYPE_BOOLEAN; $$.booleanValue = $1; }
-    | TOK_FALSE { $$.type = TYPE_BOOLEAN; $$.booleanValue = $1; }
+    TOK_INT_T { $$.type = TYPE_INTEGER; $$.valeurInteger = $1; }
+    | TOK_FLOAT_T { $$.type = TYPE_FLOAT; $$.valeurFloat = $1; }
+    | TOK_STR_T { $$.type = TYPE_STRING; strcpy($$.valeurString, $1); }
+    | TOK_TRUE { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
+    | TOK_FALSE { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
     ;
 
 Variable:
-    TOK_ID
-    | TOK_ID TOK_POINT Variable
+    TOK_ID {
+        NodeSymbol * node = search(symboleTable, $1);
+        if(node==NULL){
+            yyerrorSemantic( "Variable has not been declared!");
+            $$.nodeSymbole = NULL;
+        }else{
+            $$.nodeSymbole = node;
+        }
+    }
+    /* | TOK_ID TOK_POINT Variable
     | TOK_ID TOK_CRO_OUV Expression TOK_CRO_FER BracketExpressionLoop
-    | AppelFontion;
+    | AppelFontion; */
 
 BracketExpressionLoop:
     /* %empty */
@@ -306,9 +314,15 @@ Boucle:
     ;
 
 While:
-    TOK_WHILE TOK_PAR_OUV Expression TOK_PAR_FER TOK_ACC_OUV Bloc TOK_ACC_FER
-    ;
+    SrartWhile Bloc TOK_ACC_FER;
+    /* TOK_WHILE TOK_PAR_OUV Expression TOK_PAR_FER TOK_ACC_OUV Bloc TOK_ACC_FER
+    ; */
 
+SrartWhile:
+    WhileCondition Expression TOK_PAR_FER TOK_ACC_OUV
+
+WhileCondition:
+    TOK_WHILE TOK_PAR_OUV
 
 For: 
     TOK_FOR TOK_PAR_OUV DeclarationInitialisation TOK_POINT_VIRGULE Expression TOK_POINT_VIRGULE Affectation TOK_PAR_FER TOK_ACC_OUV Bloc TOK_ACC_FER
