@@ -1,5 +1,7 @@
 
-int a = -2;
-while ( true ) {
-    a++;
+int a = 88;
+a = 8;
+while(true){
+    a = a + 1;
 };
+

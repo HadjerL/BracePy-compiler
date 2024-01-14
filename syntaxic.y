@@ -157,7 +157,27 @@ Statement:
     | TOK_RETURN Expression TOK_POINT_VIRGULE;
 
 DeclarationInitialisation:
-    DeclarationSimple TOK_AFFECT Expression
+    DeclarationSimple TOK_AFFECT Expression{
+            if($1 != NULL){
+            if($1->tokenType == $3.type){
+                char valeurString[255];
+                valeurToString($3, valeurString);
+                setValue($1, valeurString);
+                if($3.isVariable)
+                {
+                    Quadruplet = addQuad(Quadruplet, ":=", $3.nomVariable, "", $1->symbolName, qc);
+                }
+                else
+                {
+                                        Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", $1->symbolName, qc);
+
+                }
+                qc++;
+            }else{
+                yyerrorSemantic( "Type mismatch");
+            }
+        }
+    }
     ;
 
 DeclarationSimple:
@@ -260,64 +280,62 @@ BracketExpressionLoop:
 
 Affectation:
     Variable TOK_AFFECT Expression
-    | Variable TOK_INC {
-        if($1.nodeSymbol != NULL){
-            if(!$1.nodeSymbol->hasBeenInitialized){
-                yyerrorSemantic( "Variable not initialized");
+    {
+                        printf("I AM HEEEEEEREEE 000000");
+
+
+            if($1.nodeSymbole != NULL){
+                printf("I AM HEEEEEEREEE");
+            if($1.nodeSymbole->isConstant && $1.nodeSymbole->hasBeenInitialized){
+                yyerrorSemantic("Cannot reassign a value to a constant");
+                                printf("I AM HEEEEEEREEE2");
+
             }else{
-                if($1.nodeSymbol->isConstant){
-                    yyerrorSemantic("Cannot reassign a value to a constant");
-                }else{
-                if($1.nodeSymbol->type != TYPE_FLOAT
-                && $1.nodeSymbol->type != TYPE_INTEGER){
-                    yyerrorSemantic( "Non numeric variable found");
-                }else{
-                    char valeurString[255];
-                    if($1.nodeSymbol->type < simpleTypeNb)
-                        {
-                            getValeur($1.nodeSymbol, valeurString);
-                            if(isForLoop){
-                                pushFifo(quadFifo, creerQuadreplet("ADD", $1.nodeSymbol->nom, "1", $1.nodeSymbol->nom, qc));
-                            }else{
-                                insererQuadreplet(&q, "ADD", $1.nodeSymbol->nom, "1", $1.nodeSymbol->nom, qc);
-                                qc++;
-                            }
-                        
-                        }
-                    else
-                        {
-                            getArrayElement($1.nodeSymbol, $1.index, valeurString);
-                            char buff[255];
-                            sprintf(buff, "%s[%d]", $1.nodeSymbol->nom, $1.index);
-                        if(isForLoop){
-                            pushFifo(quadFifo, creerQuadreplet("ADD", buff, "1", buff, qc));
+            if($1.nodeSymbole->tokenType % simpleTypeNb != $3.type ){
+                                printf("I AM HEEEEEEREEE3");
+
+                yyerrorSemantic( "Type mismatch");
+            }else{
+                char valeurString[255];
+                                printf("I AM HEEEEEEREEE4");
+
+
+                if($1.nodeSymbole->tokenType < simpleTypeNb)
+
+                    {
+                                        printf("I AM HEEEEEEREEE5");
+
+                        setValue($1.nodeSymbole, valeurString);
+
+
+                        if($3.isVariable){
+                                            printf("I AM HEEEEEEREEE6");
+
+                            strcpy(valeurString , $3.nomVariable);
                         }else{
-                            insererQuadreplet(&q, "ADD", buff, "1", buff, qc);
+                            valeurToString($3,valeurString);
+                                            printf("I AM HEEEEEEREEE7");
+
+                        }
+
+                        
+                            Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", $1.nodeSymbole->symbolName, qc);
+                printf("I AM HEEEEEEREEE8");
+
                             qc++;
-                        }
-                        }
-                    if($1.nodeSymbol->type % simpleTypeNb == TYPE_INTEGER){
-                        int valeur = atoi(valeurString);
-                        valeur++;
-                        sprintf(valeurString, "%d", valeur);
-                    }else{
-                        double valeur = atof(valeurString);
-                        valeur++;
-                        sprintf(valeurString,"%.4f",valeur);
-                    };
-                    if($1.nodeSymbol->type < simpleTypeNb)
-                        {
-                            setValeur($1.nodeSymbol, valeurString);
-                        }
-                    else
-                        {
-                            setArrayElement($1.nodeSymbol, $1.index, valeurString);
-                        }
-                }
+                        
+
+                    }
+        
+
             }
         }
         }
-    }
+                        printf("I AM HEEEEEEREEE FIN");
+
+
+    }        
+    | Variable TOK_INC 
     | Variable TOK_DEC
     | Variable TOK_ADD_ASSIGN Expression
     | Variable TOK_SUB_ASSIGN Expression

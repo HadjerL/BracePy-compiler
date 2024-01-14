@@ -614,15 +614,15 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,   103,   127,   128,   129,   130,   144,   146,   149,   150,
-     151,   152,   153,   154,   155,   156,   157,   160,   164,   174,
-     175,   182,   183,   186,   187,   190,   192,   194,   201,   204,
-     207,   208,   211,   212,   213,   214,   215,   216,   217,   218,
-     219,   220,   221,   222,   223,   224,   225,   226,   227,   228,
-     229,   230,   231,   234,   235,   236,   237,   238,   242,   255,
-     257,   262,   263,   321,   322,   323,   324,   325,   326,   333,
-     334,   336,   338,   339,   342,   344,   348,   350,   352,   354,
-     356,   359,   360,   366,   391,   407,   416,   417,   419,   423,
-     424,   426,   428,   430,   432
+     151,   152,   153,   154,   155,   156,   157,   160,   184,   194,
+     195,   202,   203,   206,   207,   210,   212,   214,   221,   224,
+     227,   228,   231,   232,   233,   234,   235,   236,   237,   238,
+     239,   240,   241,   242,   243,   244,   245,   246,   247,   248,
+     249,   250,   251,   254,   255,   256,   257,   258,   262,   275,
+     277,   282,   338,   339,   340,   341,   342,   343,   344,   351,
+     352,   354,   356,   357,   360,   362,   366,   368,   370,   372,
+     374,   377,   378,   384,   409,   425,   434,   435,   437,   441,
+     442,   444,   446,   448,   450
 };
 #endif
 
@@ -1699,8 +1699,34 @@ yyreduce:
 #line 1700 "syntaxic.tab.c"
     break;
 
+  case 17: /* DeclarationInitialisation: DeclarationSimple TOK_AFFECT Expression  */
+#line 160 "syntaxic.y"
+                                           {
+            if((yyvsp[-2].NodeSymbol) != NULL){
+            if((yyvsp[-2].NodeSymbol)->tokenType == (yyvsp[0].expression).type){
+                char valeurString[255];
+                valeurToString((yyvsp[0].expression), valeurString);
+                setValue((yyvsp[-2].NodeSymbol), valeurString);
+                if((yyvsp[0].expression).isVariable)
+                {
+                    Quadruplet = addQuad(Quadruplet, ":=", (yyvsp[0].expression).nomVariable, "", (yyvsp[-2].NodeSymbol)->symbolName, qc);
+                }
+                else
+                {
+                                        Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", (yyvsp[-2].NodeSymbol)->symbolName, qc);
+
+                }
+                qc++;
+            }else{
+                yyerrorSemantic( "Type mismatch");
+            }
+        }
+    }
+#line 1726 "syntaxic.tab.c"
+    break;
+
   case 18: /* DeclarationSimple: SimpleType TOK_ID  */
-#line 164 "syntaxic.y"
+#line 184 "syntaxic.y"
                       {
         if(search(symboleTable, (yyvsp[0].nomVariable)) == NULL){
             // Si l'ID n'existe pas alors l'inserer
@@ -1711,41 +1737,41 @@ yyreduce:
             (yyval.NodeSymbol) = NULL;
         }
     }
-#line 1715 "syntaxic.tab.c"
+#line 1741 "syntaxic.tab.c"
     break;
 
   case 53: /* Valeur: TOK_INT_T  */
-#line 234 "syntaxic.y"
+#line 254 "syntaxic.y"
               { (yyval.expression).type = TYPE_INTEGER; (yyval.expression).valeurInteger = (yyvsp[0].valeurInteger); }
-#line 1721 "syntaxic.tab.c"
+#line 1747 "syntaxic.tab.c"
     break;
 
   case 54: /* Valeur: TOK_FLOAT_T  */
-#line 235 "syntaxic.y"
+#line 255 "syntaxic.y"
                   { (yyval.expression).type = TYPE_FLOAT; (yyval.expression).valeurFloat = (yyvsp[0].valeurFloat); }
-#line 1727 "syntaxic.tab.c"
+#line 1753 "syntaxic.tab.c"
     break;
 
   case 55: /* Valeur: TOK_STR_T  */
-#line 236 "syntaxic.y"
+#line 256 "syntaxic.y"
                 { (yyval.expression).type = TYPE_STRING; strcpy((yyval.expression).valeurString, (yyvsp[0].valeurString)); }
-#line 1733 "syntaxic.tab.c"
+#line 1759 "syntaxic.tab.c"
     break;
 
   case 56: /* Valeur: TOK_TRUE  */
-#line 237 "syntaxic.y"
+#line 257 "syntaxic.y"
                { (yyval.expression).type = TYPE_BOOLEAN; (yyval.expression).Valeurboolean = (yyvsp[0].Valeurboolean); }
-#line 1739 "syntaxic.tab.c"
+#line 1765 "syntaxic.tab.c"
     break;
 
   case 57: /* Valeur: TOK_FALSE  */
-#line 238 "syntaxic.y"
+#line 258 "syntaxic.y"
                 { (yyval.expression).type = TYPE_BOOLEAN; (yyval.expression).Valeurboolean = (yyvsp[0].Valeurboolean); }
-#line 1745 "syntaxic.tab.c"
+#line 1771 "syntaxic.tab.c"
     break;
 
   case 58: /* Variable: TOK_ID  */
-#line 242 "syntaxic.y"
+#line 262 "syntaxic.y"
            {
         NodeSymbol * node = search(symboleTable, (yyvsp[0].nomVariable));
         if(node==NULL){
@@ -1755,74 +1781,71 @@ yyreduce:
             (yyval.variable).nodeSymbole = node;
         }
     }
-#line 1759 "syntaxic.tab.c"
+#line 1785 "syntaxic.tab.c"
     break;
 
-  case 62: /* Affectation: Variable TOK_INC  */
-#line 263 "syntaxic.y"
-                       {
-        if((yyvsp[-1].variable).nodeSymbol != NULL){
-            if(!(yyvsp[-1].variable).nodeSymbol->hasBeenInitialized){
-                yyerrorSemantic( "Variable not initialized");
+  case 61: /* Affectation: Variable TOK_AFFECT Expression  */
+#line 283 "syntaxic.y"
+    {
+                        printf("I AM HEEEEEEREEE 000000");
+
+
+            if((yyvsp[-2].variable).nodeSymbole != NULL){
+                printf("I AM HEEEEEEREEE");
+            if((yyvsp[-2].variable).nodeSymbole->isConstant && (yyvsp[-2].variable).nodeSymbole->hasBeenInitialized){
+                yyerrorSemantic("Cannot reassign a value to a constant");
+                                printf("I AM HEEEEEEREEE2");
+
             }else{
-                if((yyvsp[-1].variable).nodeSymbol->isConstant){
-                    yyerrorSemantic("Cannot reassign a value to a constant");
-                }else{
-                if((yyvsp[-1].variable).nodeSymbol->type != TYPE_FLOAT
-                && (yyvsp[-1].variable).nodeSymbol->type != TYPE_INTEGER){
-                    yyerrorSemantic( "Non numeric variable found");
-                }else{
-                    char valeurString[255];
-                    if((yyvsp[-1].variable).nodeSymbol->type < simpleTypeNb)
-                        {
-                            getValeur((yyvsp[-1].variable).nodeSymbol, valeurString);
-                            if(isForLoop){
-                                pushFifo(quadFifo, creerQuadreplet("ADD", (yyvsp[-1].variable).nodeSymbol->nom, "1", (yyvsp[-1].variable).nodeSymbol->nom, qc));
-                            }else{
-                                insererQuadreplet(&q, "ADD", (yyvsp[-1].variable).nodeSymbol->nom, "1", (yyvsp[-1].variable).nodeSymbol->nom, qc);
-                                qc++;
-                            }
-                        
-                        }
-                    else
-                        {
-                            getArrayElement((yyvsp[-1].variable).nodeSymbol, (yyvsp[-1].variable).index, valeurString);
-                            char buff[255];
-                            sprintf(buff, "%s[%d]", (yyvsp[-1].variable).nodeSymbol->nom, (yyvsp[-1].variable).index);
-                        if(isForLoop){
-                            pushFifo(quadFifo, creerQuadreplet("ADD", buff, "1", buff, qc));
+            if((yyvsp[-2].variable).nodeSymbole->tokenType % simpleTypeNb != (yyvsp[0].expression).type ){
+                                printf("I AM HEEEEEEREEE3");
+
+                yyerrorSemantic( "Type mismatch");
+            }else{
+                char valeurString[255];
+                                printf("I AM HEEEEEEREEE4");
+
+
+                if((yyvsp[-2].variable).nodeSymbole->tokenType < simpleTypeNb)
+
+                    {
+                                        printf("I AM HEEEEEEREEE5");
+
+                        setValue((yyvsp[-2].variable).nodeSymbole, valeurString);
+
+
+                        if((yyvsp[0].expression).isVariable){
+                                            printf("I AM HEEEEEEREEE6");
+
+                            strcpy(valeurString , (yyvsp[0].expression).nomVariable);
                         }else{
-                            insererQuadreplet(&q, "ADD", buff, "1", buff, qc);
+                            valeurToString((yyvsp[0].expression),valeurString);
+                                            printf("I AM HEEEEEEREEE7");
+
+                        }
+
+                        
+                            Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", (yyvsp[-2].variable).nodeSymbole->symbolName, qc);
+                printf("I AM HEEEEEEREEE8");
+
                             qc++;
-                        }
-                        }
-                    if((yyvsp[-1].variable).nodeSymbol->type % simpleTypeNb == TYPE_INTEGER){
-                        int valeur = atoi(valeurString);
-                        valeur++;
-                        sprintf(valeurString, "%d", valeur);
-                    }else{
-                        double valeur = atof(valeurString);
-                        valeur++;
-                        sprintf(valeurString,"%.4f",valeur);
-                    };
-                    if((yyvsp[-1].variable).nodeSymbol->type < simpleTypeNb)
-                        {
-                            setValeur((yyvsp[-1].variable).nodeSymbol, valeurString);
-                        }
-                    else
-                        {
-                            setArrayElement((yyvsp[-1].variable).nodeSymbol, (yyvsp[-1].variable).index, valeurString);
-                        }
-                }
+                        
+
+                    }
+        
+
             }
         }
         }
+                        printf("I AM HEEEEEEREEE FIN");
+
+
     }
-#line 1822 "syntaxic.tab.c"
+#line 1845 "syntaxic.tab.c"
     break;
 
   case 83: /* While: DebutWhile Bloc TOK_ACC_FER  */
-#line 366 "syntaxic.y"
+#line 384 "syntaxic.y"
                                 { // routineFinWhile
     // ici c'est la fin du while
 	char adresse[10];
@@ -1846,11 +1869,11 @@ hola();
     Quadruplet = updateQuad(Quadruplet ,qc, adresse);
 
 }
-#line 1850 "syntaxic.tab.c"
+#line 1873 "syntaxic.tab.c"
     break;
 
   case 84: /* DebutWhile: ConditionWhile Expression TOK_PAR_FER TOK_ACC_OUV  */
-#line 391 "syntaxic.y"
+#line 409 "syntaxic.y"
                                                        { //routineDebutWhile
     // ici c'est le debut de while
     if((yyvsp[-2].expression).type == TYPE_BOOLEAN){
@@ -1865,21 +1888,21 @@ hola();
         yyerrorSemantic( "Non boolean expression found");
     }
 }
-#line 1869 "syntaxic.tab.c"
+#line 1892 "syntaxic.tab.c"
     break;
 
   case 85: /* ConditionWhile: TOK_WHILE TOK_PAR_OUV  */
-#line 407 "syntaxic.y"
+#line 425 "syntaxic.y"
                           { // routineCondWhile
     // ici on est avant la condition du while
     ajouter(StockSauv,qc); // on sauvgarde l'addresse de cette quadreplet 
     // it think it's qc-1 car on incrémonte le qc aprés l'insertion
 }
-#line 1879 "syntaxic.tab.c"
+#line 1902 "syntaxic.tab.c"
     break;
 
 
-#line 1883 "syntaxic.tab.c"
+#line 1906 "syntaxic.tab.c"
 
       default: break;
     }
@@ -2103,7 +2126,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 434 "syntaxic.y"
+#line 452 "syntaxic.y"
 
 void yysuccess(char *s){
     //fprintf(stdout, "%d: %s, col:%d\n", yylineno, s,currentColumn);
