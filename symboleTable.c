@@ -55,12 +55,17 @@ void displaySymbolTable(SymboleTable *symboleTable)
 {
     NodeSymbol *q= symboleTable->first;
     NodeSymbol *p = q;
-        printf("|Token Id|Token Type|Symbol Name|hasBeenInitialized|isConstant|\n");
-        printf("--------------------------------------\n");
+        printf("|%-20s|%-10s|%-20s|%-15s|%-10s|\n", "Symbol Name", "Token Type", "Token Value", "Initialized", "Constant");
+    printf("---------------------------------------------------------------------------------\n");
     while (p != NULL)
     {
-        printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
-        printf("--------------------------------------\n");
+        printf("|%-20s|%-10s|%-20s|%-15s|%-10s|\n", 
+                p->symbolName, 
+                getRealType(p->tokenType), 
+                p->tokenValue, 
+                p->hasBeenInitialized ? "true" : "false", 
+                p->isConstant ? "true" : "false");
+        printf("---------------------------------------------------------------------------------\n");
         p= p->next;
     }
 }

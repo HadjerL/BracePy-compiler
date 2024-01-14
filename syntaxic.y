@@ -211,7 +211,20 @@ Expression:
     | TOK_NOT Expression
     | TOK_SUB Expression
     | TOK_ADD Expression
-    | Expression OperateurBinaire Expression
+    | Expression TOK_AFFECT Expression
+    | Expression TOK_LE Expression
+    | Expression TOK_GT Expression
+    | Expression TOK_GE Expression
+    | Expression TOK_NE Expression
+    | Expression TOK_EQ Expression
+    | Expression TOK_OR Expression
+    | Expression TOK_AND Expression
+    | Expression TOK_ADD Expression
+    | Expression TOK_SUB Expression
+    | Expression TOK_MUL Expression
+    | Expression TOK_DIV Expression
+    | Expression TOK_MOD Expression
+    | Expression TOK_POW Expression
     | Valeur
     | Variable;
 
@@ -232,28 +245,6 @@ Variable:
 BracketExpressionLoop:
     /* %empty */
     |   TOK_CRO_OUV Expression TOK_CRO_FER BracketExpressionLoop;
-
-OperateurBinaire:
-TOK_AFFECT
-| TOK_LT
-| TOK_LE
-|  TOK_GT
-| TOK_GE
-| TOK_NE 
-|TOK_EQ
-|TOK_ADD_ASSIGN 
-|TOK_SUB_ASSIGN
-| TOK_MUL_ASSIGN 
-| TOK_DIV_ASSIGN 
-| TOK_MOD_ASSIGN
-|TOK_OR
-|TOK_AND
-|TOK_ADD 
-|TOK_SUB
-|TOK_MUL 
-|TOK_DIV 
-|TOK_MOD 
-|TOK_POW;
 
 
 
