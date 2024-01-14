@@ -64,6 +64,7 @@
 
 %type <NodeSymbol> DeclarationSimple;
 %type <expression> Expression;
+%type <expression> Valeur;
 %type <variable> Variable;
 %type <type> SimpleType;
 %type <tableau> Tableau;
@@ -92,7 +93,7 @@
     void showLexicalError();
     SymboleTable * symboleTable = NULL;
     stockSauv * StockSauv;
-    quad * Quadruplet;
+    quad Quadruplet=NULL;
     int qc = 1;
     
 %}
@@ -208,23 +209,29 @@ Arguments:
 
 Expression:
     TOK_PAR_OUV Expression TOK_PAR_FER
-    | TOK_NOT Expression
+    | TOK_NOT Expression{
+            if($2.type == TYPE_BOOLEAN)
+            {
+                $$.type=TYPE_BOOLEAN;
+                $$.Valeurboolean=!$2.Valeurboolean;
+
+                char buff[255];
+                char res[20];
+                strcpy(buff, ($2.Valeurboolean == true) ? "true" : "false");
+                sprintf(res, "%s%d", "R",qc);
+                strcpy($$.nomVariable,res);
+                $$.isVariable=true;
+                addQuad(&Quadruplet, "NOT","", buff, res, qc);
+                qc++;
+            }
+            else
+            {
+                yyerrorSemantic( "Can't do NOT of none bolean type");
+            }
+    }
     | TOK_SUB Expression
     | TOK_ADD Expression
-    | Expression TOK_AFFECT Expression
-    | Expression TOK_LE Expression
-    | Expression TOK_GT Expression
-    | Expression TOK_GE Expression
-    | Expression TOK_NE Expression
-    | Expression TOK_EQ Expression
-    | Expression TOK_OR Expression
-    | Expression TOK_AND Expression
-    | Expression TOK_ADD Expression
-    | Expression TOK_SUB Expression
-    | Expression TOK_MUL Expression
-    | Expression TOK_DIV Expression
-    | Expression TOK_MOD Expression
-    | Expression TOK_POW Expression
+    | Expression OperateurBinaire Expression
     | Valeur
     | Variable;
 
@@ -232,8 +239,8 @@ Valeur:
     TOK_INT_T
     | TOK_FLOAT_T
     | TOK_STR_T
-    | TOK_TRUE
-    | TOK_FALSE
+    | TOK_TRUE   { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
+    | TOK_FALSE  { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
     ;
 
 Variable:
@@ -245,6 +252,28 @@ Variable:
 BracketExpressionLoop:
     /* %empty */
     |   TOK_CRO_OUV Expression TOK_CRO_FER BracketExpressionLoop;
+
+OperateurBinaire:
+TOK_AFFECT
+| TOK_LT
+| TOK_LE
+|  TOK_GT
+| TOK_GE
+| TOK_NE 
+|TOK_EQ
+|TOK_ADD_ASSIGN 
+|TOK_SUB_ASSIGN
+| TOK_MUL_ASSIGN 
+| TOK_DIV_ASSIGN 
+| TOK_MOD_ASSIGN
+|TOK_OR
+|TOK_AND
+|TOK_ADD 
+|TOK_SUB
+|TOK_MUL 
+|TOK_DIV 
+|TOK_MOD 
+|TOK_POW;
 
 
 
@@ -343,6 +372,7 @@ void yyerrorSemantic(char *s){
 }
 
 int main (void){
+    quad quadlist=NULL;
     yydebug = 1;
     yyin = fopen(file,"r");
     if(yyin == NULL){
@@ -360,8 +390,9 @@ int main (void){
         fprintf(stderr, "Parsing failed\n");
         return 1;
     }
+    addQuad(quadlist, "NOT","NOT", "not", "jbc", 1);
     displaySymbolTable(symboleTable);
-    displayQuad(Quadruplet);
+    displayQuad(quadlist);
     if(symboleTable != NULL){
         free(symboleTable);
     }
