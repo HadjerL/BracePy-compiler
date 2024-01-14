@@ -615,16 +615,15 @@ char *yytext_ptr;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "global.h"
 #include "syntaxic.tab.h" 
 
 extern void yysuccess(char *s);
 extern void yyerror(const char *s);
 extern void showLexicalError();
 extern int currentColumn;
-#line 626 "lex.yy.c"
+#line 625 "lex.yy.c"
 /*|"print")         */
-#line 628 "lex.yy.c"
+#line 627 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -847,9 +846,9 @@ YY_DECL
 		}
 
 	{
-#line 41 "lexical.l"
+#line 40 "lexical.l"
 
-#line 853 "lex.yy.c"
+#line 852 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -941,22 +940,26 @@ do_action:	/* This label is used only to access EOF actions. */
 	{ /* beginning of action switch */
 case 1:
 YY_RULE_SETUP
-#line 42 "lexical.l"
+#line 41 "lexical.l"
 {
     if (!strcmp(yytext, "int")){
         yysuccess(yytext);
+        yylval.type = TYPE_INTEGER;
         return TOK_INT;
     }
     else if (!strcmp(yytext, "str")){
         yysuccess(yytext);
+        yylval.type = TYPE_STRING;
         return TOK_STR;
     }
     else if (!strcmp(yytext, "float")){
         yysuccess(yytext);
+        yylval.type = TYPE_FLOAT;
         return TOK_FLOAT;
     }
     else if (!strcmp(yytext, "bool")){
         yysuccess(yytext);
+        yylval.type = TYPE_BOOLEAN;
         return TOK_BOOL;
     }
     else if (!strcmp(yytext, "array")){
@@ -969,6 +972,7 @@ YY_RULE_SETUP
     }
     else if (!strcmp(yytext, "const")){
         yysuccess(yytext);
+        yylval.isConstant = true;
         return TOK_CONST;
     }
     else if (!strcmp(yytext, "if")){
@@ -1045,44 +1049,48 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 143 "lexical.l"
+#line 147 "lexical.l"
 {
-    yylval=atoi(yytext);
     yysuccess(yytext);
+    yylval.valeurInteger = atoi(yytext);
     return TOK_INT_T;
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 149 "lexical.l"
+#line 153 "lexical.l"
 {
-    yylval=atof(yytext);
     yysuccess(yytext);
+    yylval.valeurFloat = strtod(yytext, NULL);
     return TOK_FLOAT_T;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 155 "lexical.l"
+#line 159 "lexical.l"
 {
     yysuccess(yytext);
+    strcpy(yylval.valeurString, yytext);
     return TOK_STR_T;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 160 "lexical.l"
+#line 165 "lexical.l"
 {
     yysuccess(yytext);
-    if (!strcmp(yytext, "true"))
+    if(!strcmp(yytext, "true")){
+        yylval.Valeurboolean = true;
         return TOK_TRUE;
-    else
+    }else{
+        yylval.Valeurboolean = false;
         return TOK_FALSE;
+    }
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 168 "lexical.l"
+#line 176 "lexical.l"
 {
     if (!strcmp(yytext, "+")){
         yysuccess(yytext);
@@ -1144,7 +1152,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 227 "lexical.l"
+#line 235 "lexical.l"
 {
     if (!strcmp(yytext, "not")){
         yysuccess(yytext);
@@ -1186,103 +1194,103 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 266 "lexical.l"
-{ return TOK_ID; yysuccess(yytext);}
+#line 274 "lexical.l"
+{ yysuccess(yytext); strcpy(yylval.nomVariable, yytext); return TOK_ID; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 267 "lexical.l"
+#line 275 "lexical.l"
 { return TOK_AFFECT; yysuccess(yytext); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 268 "lexical.l"
+#line 276 "lexical.l"
 { return TOK_PAR_OUV;yysuccess(yytext); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 269 "lexical.l"
+#line 277 "lexical.l"
 { return TOK_PAR_FER;yysuccess(yytext); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 270 "lexical.l"
+#line 278 "lexical.l"
 { return TOK_ACC_OUV;yysuccess(yytext); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 271 "lexical.l"
+#line 279 "lexical.l"
 { return TOK_ACC_FER;yysuccess(yytext); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 272 "lexical.l"
+#line 280 "lexical.l"
 { return TOK_CRO_OUV ;yysuccess(yytext); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 273 "lexical.l"
+#line 281 "lexical.l"
 { return TOK_CRO_FER;yysuccess(yytext); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 274 "lexical.l"
+#line 282 "lexical.l"
 { return TOK_POINT;yysuccess(yytext); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 275 "lexical.l"
+#line 283 "lexical.l"
 { return TOK_VIRGULE;yysuccess(yytext); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 276 "lexical.l"
+#line 284 "lexical.l"
 { return TOK_DEUX_POINTS;yysuccess(yytext); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 277 "lexical.l"
+#line 285 "lexical.l"
 { return TOK_POINT_VIRGULE; yysuccess(yytext); }
 	YY_BREAK
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 280 "lexical.l"
+#line 288 "lexical.l"
 {
     currentColumn = 1;
 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 284 "lexical.l"
+#line 292 "lexical.l"
 {
     currentColumn+=yyleng;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 287 "lexical.l"
+#line 295 "lexical.l"
 { /* Ignorer les commentaires sur une seule ligne */ }
 	YY_BREAK
 case 23:
 /* rule 23 can match eol */
 YY_RULE_SETUP
-#line 288 "lexical.l"
+#line 296 "lexical.l"
 { /* Ignorer les commentaires multi-lignes */ }
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 289 "lexical.l"
+#line 297 "lexical.l"
 { /* Ignorer les espaces blancs */ }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 291 "lexical.l"
+#line 299 "lexical.l"
 yyterminate();
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 293 "lexical.l"
+#line 301 "lexical.l"
 {
     // fprintf(stderr, "Erreur : caractère non reconnu à la ligne %d\n", yylineno);
     // exit(1);
@@ -1293,10 +1301,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 300 "lexical.l"
+#line 308 "lexical.l"
 ECHO;
 	YY_BREAK
-#line 1300 "lex.yy.c"
+#line 1308 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2284,7 +2292,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 300 "lexical.l"
+#line 308 "lexical.l"
 
 
 

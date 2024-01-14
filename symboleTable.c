@@ -143,23 +143,23 @@ void setValue(NodeSymbol *nodeSymbole, char *value){
 // char *getRealType(NodeSymbol *nodeSymbole);
 // void setValue(NodeSymbol *nodeSymbole, char *value);
 
-int main(){
-    SymboleTable *symbolTable = allocateSymboleTable();
-    NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1,"2", "Variable1",true);
-    NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 1,"r", "Variable1",false);
-    NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 1, "Serine","Variable1",true);
-    NodeSymbol *p = search(symbolTable,"Variable1");
-    printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
-    displaySymbolTable(symbolTable);
-    printf(getName(p));
-    printf(getValue(p));
-    printf("%d\n", 5);
-    printf("%d\n ",getType(p));
-    printf("%s\n",getRealType(getType(p)));
-    setValue(p,"lol");
-    printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
-    printf("Hello world");
-    return 0;
-}
+// int main(){
+//     SymboleTable *symbolTable = allocateSymboleTable();
+//     NodeSymbol *nodeSymbole1 = InsertEntry(symbolTable, 1,"2", "Variable1",true);
+//     NodeSymbol *nodeSymbole2 = InsertEntry(symbolTable, 1,"r", "Variable1",false);
+//     NodeSymbol *nodeSymbole3 = InsertEntry(symbolTable, 1, "Serine","Variable1",true);
+//     NodeSymbol *p = search(symbolTable,"Variable1");
+//     printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
+//     displaySymbolTable(symbolTable);
+//     printf(getName(p));
+//     printf(getValue(p));
+//     printf("%d\n", 5);
+//     printf("%d\n ",getType(p));
+//     printf("%s\n",getRealType(getType(p)));
+//     setValue(p,"lol");
+//     printf("|%s|%d|%s|%s|%s|\n",p->symbolName,p->tokenType,p->tokenValue, p->hasBeenInitialized? "true" : "false", p->isConstant? "true" : "false");
+//     printf("Hello world");
+//     return 0;
+// }
 
 

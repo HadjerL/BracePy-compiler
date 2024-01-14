@@ -47,7 +47,6 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 7 "syntaxic.y"
 
-#include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -57,7 +56,7 @@ extern int yydebug;
 #include "structure.h"
 #include "quadruplet.h"
 
-#line 61 "syntaxic.tab.h"
+#line 60 "syntaxic.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -142,7 +141,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 20 "syntaxic.y"
+#line 19 "syntaxic.y"
 
     int type;
     char nomVariable[50];
@@ -158,7 +157,7 @@ union YYSTYPE
     tableau tableau;
     variable variable;
 
-#line 162 "syntaxic.tab.h"
+#line 161 "syntaxic.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "global.h"
 #include "syntaxic.tab.h" 
 
 extern void yysuccess(char *s);
@@ -42,18 +41,22 @@ COMMENTM       [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
 {KEYWORD} {
     if (!strcmp(yytext, "int")){
         yysuccess(yytext);
+        yylval.type = TYPE_INTEGER;
         return TOK_INT;
     }
     else if (!strcmp(yytext, "str")){
         yysuccess(yytext);
+        yylval.type = TYPE_STRING;
         return TOK_STR;
     }
     else if (!strcmp(yytext, "float")){
         yysuccess(yytext);
+        yylval.type = TYPE_FLOAT;
         return TOK_FLOAT;
     }
     else if (!strcmp(yytext, "bool")){
         yysuccess(yytext);
+        yylval.type = TYPE_BOOLEAN;
         return TOK_BOOL;
     }
     else if (!strcmp(yytext, "array")){
@@ -66,6 +69,7 @@ COMMENTM       [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
     }
     else if (!strcmp(yytext, "const")){
         yysuccess(yytext);
+        yylval.isConstant = true;
         return TOK_CONST;
     }
     else if (!strcmp(yytext, "if")){
@@ -141,28 +145,32 @@ COMMENTM       [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
 }
 
 {INT} {
-    yylval=atoi(yytext);
     yysuccess(yytext);
+    yylval.valeurInteger = atoi(yytext);
     return TOK_INT_T;
 }
 
 {FLOAT} {
-    yylval=atof(yytext);
     yysuccess(yytext);
+    yylval.valeurFloat = strtod(yytext, NULL);
     return TOK_FLOAT_T;
 }
 
 {STRING} {
     yysuccess(yytext);
+    strcpy(yylval.valeurString, yytext);
     return TOK_STR_T;
 }
 
 {BOOL} {
     yysuccess(yytext);
-    if (!strcmp(yytext, "true"))
+    if(!strcmp(yytext, "true")){
+        yylval.Valeurboolean = true;
         return TOK_TRUE;
-    else
+    }else{
+        yylval.Valeurboolean = false;
         return TOK_FALSE;
+    }
 }
 
 {ARITHMETIC} {
@@ -263,7 +271,7 @@ COMMENTM       [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
     }
 }
 
-{IDENTIFIER} { return TOK_ID; yysuccess(yytext);}
+{IDENTIFIER} { yysuccess(yytext); strcpy(yylval.nomVariable, yytext); return TOK_ID; }
 "=" { return TOK_AFFECT; yysuccess(yytext); }
 "(" { return TOK_PAR_OUV;yysuccess(yytext); }
 ")" { return TOK_PAR_FER;yysuccess(yytext); }

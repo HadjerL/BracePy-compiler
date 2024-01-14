@@ -5,7 +5,6 @@
 %}
 
 %code requires{
-#include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -33,11 +32,7 @@
     variable variable;
 }
 
-%type <NodeSymbol> DeclarationSimple;
-%type <expression> Expression;
-%type <variable> Variable;
-%type <type> SimpleType;
-%type <tableau> Tableau;
+
 
 
 
@@ -66,6 +61,13 @@
 %left TOK_OR
 %left TOK_AND
 %left TOK_NOT
+
+%type <NodeSymbol> DeclarationSimple;
+%type <expression> Expression;
+%type <variable> Variable;
+%type <type> SimpleType;
+%type <tableau> Tableau;
+
 %nonassoc TOK_AFFECT TOK_LT TOK_GT TOK_LE TOK_GE
 %nonassoc TOK_NE TOK_ADD_ASSIGN TOK_SUB_ASSIGN TOK_MUL_ASSIGN 
 %nonassoc TOK_DIV_ASSIGN  TOK_MOD_ASSIGN
@@ -75,7 +77,7 @@
 %left TOK_POINT TOK_CRO_OUV TOK_CRO_FER
 %left TOK_POW
 %left TOK_PAR_OUV TOK_PAR_FER
-%start ProgrammePrincipal
+%start Bloc
 
 %{
     extern FILE *yyin;
@@ -85,6 +87,7 @@
     char* file = "test.txt";
     int currentColumn = 1;
     void yysuccess(char *s);
+    void yyerrorSemantic(char *s);
     void yyerror(const char *s);
     void showLexicalError();
     SymboleTable * symboleTable = NULL;
@@ -107,6 +110,7 @@ Importation:
 Fonction:
     /* %empty */
     |TOK_DEF TypeDeRetour TOK_ID TOK_PAR_OUV Parametres TOK_PAR_FER TOK_ACC_OUV Bloc TOK_ACC_FER Fonction;
+
 TypeDeRetour:
     SimpleType
     | TOK_ARRAY SimpleType TOK_CRO_OUV TOK_CRO_FER BracketLoop
@@ -341,6 +345,10 @@ void yysuccess(char *s){
 
 void yyerror(const char *s) {
     fprintf(stdout, "File '%s', line %d, character %d :  %s \n", file, yylineno, currentColumn, s);
+}
+void yyerrorSemantic(char *s){
+    fprintf(stdout, "File '%s', line %d, character %d, ssemantic error:%s\n", file, yylineno, currentColumn, s);
+    return;
 }
 
 int main (void){
