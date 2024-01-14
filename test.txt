@@ -1,3 +1,10 @@
+<<<<<<< HEAD
 int a = 2;
 int b = a;
 int b = c; 
+=======
+int a = -2;
+while ( true ) {
+    a++;
+};
+>>>>>>> 2a461b3edb0d984f94148831f93846695e865b4a

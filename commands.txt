@@ -1,0 +1,3 @@
+flex -l lexical.l 
+bison -d syntaxic.y 
+gcc lex.yy.c syntaxic.tab.c quadruplet.c stockSauv.c  structure.c symboleTable.c -lm -lfl -o test.exe
