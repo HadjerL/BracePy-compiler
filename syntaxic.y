@@ -64,6 +64,7 @@
 
 %type <NodeSymbol> DeclarationSimple;
 %type <expression> Expression;
+%type <expression> Valeur;
 %type <variable> Variable;
 %type <type> SimpleType;
 %type <tableau> Tableau;
@@ -232,8 +233,8 @@ Valeur:
     TOK_INT_T
     | TOK_FLOAT_T
     | TOK_STR_T
-    | TOK_TRUE
-    | TOK_FALSE
+    | TOK_TRUE { $$.type = TYPE_BOOLEAN; $$.booleanValue = $1; }
+    | TOK_FALSE { $$.type = TYPE_BOOLEAN; $$.booleanValue = $1; }
     ;
 
 Variable:
