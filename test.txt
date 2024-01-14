@@ -1,1 +1,7 @@
 bool a = not true;
+float b= - 2.5;
+bool a = - false;
+int r = 10 ;
+int c = 1 + 2 ;
+
+

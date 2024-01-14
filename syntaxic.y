@@ -208,7 +208,9 @@ Arguments:
     | Expression TOK_VIRGULE Arguments
 
 Expression:
-    TOK_PAR_OUV Expression TOK_PAR_FER
+    TOK_PAR_OUV Expression TOK_PAR_FER {
+            $$=$2;
+    }   
     | TOK_NOT Expression{
             if($2.type == TYPE_BOOLEAN)
             {
@@ -221,7 +223,7 @@ Expression:
                 sprintf(res, "%s%d", "R",qc);
                 strcpy($$.nomVariable,res);
                 $$.isVariable=true;
-                addQuad(&Quadruplet, "NOT","", buff, res, qc);
+                Quadruplet=addQuad(Quadruplet, "NOT","", buff, res, qc);
                 qc++;
             }
             else
@@ -229,18 +231,251 @@ Expression:
                 yyerrorSemantic( "Can't do NOT of none bolean type");
             }
     }
-    | TOK_SUB Expression
+    | TOK_SUB Expression {
+        if($2.type != TYPE_STRING){           
+                if($2.type == TYPE_INTEGER){
+                    $$.type=TYPE_INTEGER;
+                    $$.valeurInteger=0-$2.valeurInteger;                
+                    char buff[255];
+                    char res[20];
+                    sprintf(buff, "%d", $2.valeurInteger);
+                    sprintf(res, "%s%d", "R",qc);
+                    strcpy($$.nomVariable,res);
+                    $$.isVariable=true;
+                    Quadruplet=addQuad(Quadruplet, "-","0", buff, res, qc);
+                    qc++;
+                }
+                else{
+                    if($2.type == TYPE_FLOAT)
+                    {
+                        $$.type=TYPE_FLOAT;
+                        $$.valeurFloat=0.0-$2.valeurFloat;
+                        char buff[255];
+                        char res[20];
+                        sprintf(buff, "%f", $2.valeurFloat);
+                        sprintf(res, "%s%d", "R",qc);
+                        Quadruplet=addQuad(Quadruplet, "-","0", buff, res, qc);
+                        qc++;
+                    }
+                }
+            }else{
+                yyerrorSemantic( "Y'a pas une expression arithmétique");
+            }
+    }
     | TOK_ADD Expression
-    | Expression OperateurBinaire Expression
+    {
+            if($2.type != TYPE_STRING)
+            {
+                if($2.type == TYPE_INTEGER)
+                {
+                    $$.type=TYPE_INTEGER;
+                    $$.valeurInteger=0+$2.valeurInteger;
+                }
+                else
+                {
+                    if($2.type == TYPE_FLOAT)
+                    {
+                        $$.type=TYPE_FLOAT;
+                        $$.valeurFloat=0.0+$2.valeurFloat;
+                    }
+                }
+            }
+            else{
+                yyerrorSemantic( "Y'a pas une expression arithmétique");
+            }
+    }
+    | Expression TOK_AFFECT Expression
+    | Expression TOK_LE Expression
+    | Expression TOK_GT Expression
+    | Expression TOK_GE Expression
+    | Expression TOK_NE Expression
+    | Expression TOK_EQ Expression
+    | Expression TOK_OR Expression
+    | Expression TOK_AND Expression
+    | Expression TOK_ADD Expression{
+      if($1.type == $3.type){
+                    if($1.type == TYPE_STRING)
+                    {
+                        strcpy($$.valeurString,$1.valeurString);
+                        strcat($$.valeurString,$3.valeurString);
+
+                        char res[20];
+                        sprintf(res, "%s%d", "R",qc);
+                        strcpy($$.nomVariable,res);
+                        $$.isVariable=true;
+                        if($1.isVariable == true & $3.isVariable == true)
+                        {
+                             Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, $3.nomVariable, res, qc);
+                        }
+                        else
+                        {
+                            if($1.isVariable == true)
+                            {
+                                Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, $3.valeurString, res, qc);
+                            }
+                            else
+                            {
+                                if($3.isVariable == true)
+                                {
+                                    Quadruplet=addQuad(Quadruplet, "+",$1.valeurString,$3.nomVariable,res, qc);
+                                }
+                                else
+                                {
+                                   Quadruplet=addQuad(Quadruplet, "+",$1.valeurString,$3.valeurString, res, qc);
+                                }
+                            }
+                        }
+                        qc++;
+                    }
+                    else{
+                        if($1.type == TYPE_INTEGER)
+                        {
+                            $$.valeurInteger=$1.valeurInteger+$3.valeurInteger;
+
+                            char buff[255];
+                            char buff2[255];
+                            char res[20];
+                            sprintf(res, "%s%d", "R",qc);
+                            strcpy($$.nomVariable,res);
+                            $$.isVariable=true;
+                            if($1.isVariable == true & $3.isVariable == true)
+                            {
+                               Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, $3.nomVariable, res, qc);
+                            }
+                            else
+                            {
+                                if($1.isVariable == true)
+                                {
+                                    sprintf(buff2, "%d", $3.valeurInteger);
+                                    Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, buff2, res, qc);
+                                }
+                                else
+                                {
+                                    if($3.isVariable == true)
+                                    {
+                                        sprintf(buff, "%d", $1.valeurInteger);
+                                        Quadruplet=addQuad(Quadruplet, "+",buff,$3.nomVariable,res, qc);
+                                    }
+                                    else
+                                    {
+                                        sprintf(buff, "%d", $1.valeurInteger);
+                                        sprintf(buff2, "%d", $3.valeurInteger);
+                                          Quadruplet=addQuad(Quadruplet, "+",buff,buff2,res, qc);
+                                    }
+                                }
+                            }
+                            qc++;
+                        }
+                        else {
+                            if($1.type == TYPE_FLOAT)
+                            {
+                                $$.valeurFloat=$1.valeurFloat+$3.valeurFloat;
+                                
+                                char buff[255];
+                                char buff2[255];
+                                char res[20];
+                                sprintf(res, "%s%d", "R",qc);
+                                strcpy($$.nomVariable,res);
+                                $$.isVariable=true;
+                                if($1.isVariable == true & $3.isVariable == true)
+                                {
+                                      Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, $3.nomVariable, res, qc);
+                                }
+                                else
+                                {
+                                    if($1.isVariable == true)
+                                    {
+                                        sprintf(buff2, "%f", $3.valeurFloat);
+                                        Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, buff2, res, qc);
+                                    }
+                                    else
+                                    {
+                                        if($3.isVariable == true)
+                                        {
+                                            sprintf(buff, "%f", $1.valeurFloat);
+                                             Quadruplet=addQuad(Quadruplet, "+",buff,$3.nomVariable,res, qc);
+                                        }
+                                        else
+                                        {
+                                            sprintf(buff, "%f", $1.valeurFloat);
+                                            sprintf(buff2, "%f", $3.valeurFloat);
+                                             Quadruplet=addQuad(Quadruplet, "+",buff,buff2,res, qc);
+                                        }
+                                    }
+                                }
+                                qc++;
+                            }
+                            else
+                            {
+                                if($1.type == TYPE_BOOLEAN)
+                                {
+                                    $$.type=TYPE_BOOLEAN;
+                                    if(($1.Valeurboolean) || ($3.Valeurboolean))
+                                    {
+                                        $$.Valeurboolean=true;
+                                    }
+                                    else
+                                    {
+                                        $$.Valeurboolean=false;
+                                    };
+
+                                    char buff[255];
+                                    char buff2[255];
+                                    char res[20];
+                                    sprintf(res, "%s%d", "R",qc);
+                                    strcpy($$.nomVariable,res);
+                                    $$.isVariable=true;
+                                    if($1.isVariable == true & $3.isVariable == true)
+                                    {
+                                        Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, $3.nomVariable, res, qc);
+                                    }
+                                    else
+                                    {
+                                        if($1.isVariable == true)
+                                        {
+                                            strcpy(buff, ($3.Valeurboolean == true) ? "true" : "false");
+                                             Quadruplet=addQuad(Quadruplet, "+",$1.nomVariable, buff2, res, qc);
+                                        }
+                                        else
+                                        {
+                                            if($3.isVariable == true)
+                                            {
+                                                strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                                               Quadruplet=addQuad(Quadruplet, "+",buff,$3.nomVariable,res, qc);
+                                            }
+                                            else
+                                            {
+                                                strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                                                strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                                                 Quadruplet=addQuad(Quadruplet, "+",buff,buff2,res, qc);
+                                            }
+                                        }
+                                    }
+                                    qc++;
+                                }
+                            }
+                        }
+                    }
+            }
+            else
+            {
+                yyerrorSemantic( "Type mismatch");
+            }
+    }
+    | Expression TOK_SUB Expression
+    | Expression TOK_MUL Expression
+    | Expression TOK_DIV Expression
+    | Expression TOK_MOD Expression
+    | Expression TOK_POW Expression
     | Valeur
     | Variable;
 
 Valeur:
-    TOK_INT_T
-    | TOK_FLOAT_T
-    | TOK_STR_T
-    | TOK_TRUE   { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
-    | TOK_FALSE  { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
+    TOK_INT_T     { $$.type = TYPE_INTEGER; $$.valeurInteger = $1; }
+    | TOK_FLOAT_T { $$.type = TYPE_FLOAT; $$.valeurFloat = $1; }
+    | TOK_STR_T   { $$.type = TYPE_STRING; strcpy($$.valeurString, $1); }
+    | TOK_TRUE    { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
+    | TOK_FALSE   { $$.type = TYPE_BOOLEAN; $$.Valeurboolean = $1; }
     ;
 
 Variable:
@@ -252,28 +487,6 @@ Variable:
 BracketExpressionLoop:
     /* %empty */
     |   TOK_CRO_OUV Expression TOK_CRO_FER BracketExpressionLoop;
-
-OperateurBinaire:
-TOK_AFFECT
-| TOK_LT
-| TOK_LE
-|  TOK_GT
-| TOK_GE
-| TOK_NE 
-|TOK_EQ
-|TOK_ADD_ASSIGN 
-|TOK_SUB_ASSIGN
-| TOK_MUL_ASSIGN 
-| TOK_DIV_ASSIGN 
-| TOK_MOD_ASSIGN
-|TOK_OR
-|TOK_AND
-|TOK_ADD 
-|TOK_SUB
-|TOK_MUL 
-|TOK_DIV 
-|TOK_MOD 
-|TOK_POW;
 
 
 
@@ -372,7 +585,6 @@ void yyerrorSemantic(char *s){
 }
 
 int main (void){
-    quad quadlist=NULL;
     yydebug = 1;
     yyin = fopen(file,"r");
     if(yyin == NULL){
@@ -390,9 +602,8 @@ int main (void){
         fprintf(stderr, "Parsing failed\n");
         return 1;
     }
-    addQuad(quadlist, "NOT","NOT", "not", "jbc", 1);
     displaySymbolTable(symboleTable);
-    displayQuad(quadlist);
+    displayQuad(Quadruplet);
     if(symboleTable != NULL){
         free(symboleTable);
     }
