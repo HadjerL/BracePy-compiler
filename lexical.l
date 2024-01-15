@@ -26,7 +26,7 @@ LINEBREAK [\n\r]+
 WHITESPACE         [[:space:]]+
 INT                [+-]?[0-9]+
 FLOAT              [+-]?[0-9]*[.][0-9]+
-STRING             \".*\"
+STRING             \"[^\"]*\"
 BOOL               (true|false)
 
 ARITHMETIC       "+"|"-"|"*"|"/"|"%"|"++"|"--"|"**"|"//"|"+="|"-="|"*="|"/="|"%="
@@ -158,6 +158,7 @@ COMMENTM       [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
 
 {STRING} {
     yysuccess(yytext);
+    printf("token%s\n",yytext);
     strcpy(yylval.valeurString, yytext);
     return TOK_STR_T;
 }

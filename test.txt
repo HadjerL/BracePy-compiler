@@ -1,7 +1,38 @@
-bool a = not true;
-float b= - 2.5;
-bool a = - false;
-int r = 10 ;
-int c = 1 + 2 ;
+str marmar = "ssssssssssss" % "mmmm" ;
+bool m = false and false ;
+int r = (5 >= 6) ;
+int c = (5 != 7) ;
+// Test addition
+int a = 5;
+int b = 3;
+int c = 5 + 3;  // c should be 8
+
+// Test subtraction
+int d = 10;
+int e = 4;
+int f = 10 - 4;  // f should be 6
+
+int i = 2 * 5;  // i should be 10
+
+
+int l = 15 / 3;  // l should be 5
+
+
+int o = 17 % 4;  // o should be 1
+
+
+str r = "Hello, " + "world!";  // r should be "Hello, world!"
+
+bool u = true and false;  
+
+
+bool x = true or false;  // x should be true
+
+bool z = not true;  // z should be false
+
+
+
+
+
 
 
