@@ -1,5 +1,6 @@
+int a = 1;
+a = true;
+a++;
+a--;
 
-int a = -2;
-while ( true ) {
-    a++;
-};
+

@@ -20,7 +20,7 @@ struct tableau{
 
 typedef struct variable variable;
 struct variable{
-    struct nodeSymbole * nodeSymbole;
+    struct NodeSymbol * nodeSymbole;
 };
 
 

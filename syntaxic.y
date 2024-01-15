@@ -260,43 +260,67 @@ BracketExpressionLoop:
 
 Affectation:
     Variable TOK_AFFECT Expression
+        {
+            if($1.nodeSymbole != NULL){
+            if($1.nodeSymbole->isConstant && $1.nodeSymbole->hasBeenInitialized){
+                yyerrorSemantic("Cannot reassign a value to a constant");
+            }else{
+            if($1.nodeSymbole->tokenType != $3.type ){
+                yyerrorSemantic( "Type mismatch");
+            }else{
+                char valeurString[255];
+                if($1.nodeSymbole->tokenType < simpleTypeNb)
+                    {
+                        if($3.type  == TYPE_INTEGER){
+                            sprintf(valeurString,"%d",$3.valeurInteger);
+                        }else{
+                            if($3.type == TYPE_FLOAT){
+                            
+                                sprintf(valeurString,"%d",$3.valeurFloat);
+                            
+                            }else{
+                                if($3.type == TYPE_BOOLEAN){
+                                    strcpy(valeurString, ($3.Valeurboolean == true) ? "true" : "false");
+                                }else{
+                                    if($3.type ==TYPE_STRING){
+                                        strcpy(valeurString,$3.valeurString);
+                                    }
+                                }
+                            }
+                        }          
+                        setValue($1.nodeSymbole, valeurString);
+                        if($3.isVariable){
+                            strcpy(valeurString , $3.nomVariable);
+                        }else{
+                            valeurToString($3,valeurString);
+                        }
+                        Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", $1.nodeSymbole->symbolName, qc);
+                        qc++;
+                    }
+            }
+        }
+        }
+    } 
     | Variable TOK_INC {
-        if($1.nodeSymbol != NULL){
-            if(!$1.nodeSymbol->hasBeenInitialized){
+        if($1.nodeSymbole != NULL){
+            if(!$1.nodeSymbole->hasBeenInitialized){
                 yyerrorSemantic( "Variable not initialized");
             }else{
-                if($1.nodeSymbol->isConstant){
+                if($1.nodeSymbole->isConstant){
                     yyerrorSemantic("Cannot reassign a value to a constant");
                 }else{
-                if($1.nodeSymbol->type != TYPE_FLOAT
-                && $1.nodeSymbol->type != TYPE_INTEGER){
+                if($1.nodeSymbole->tokenType != TYPE_FLOAT
+                && $1.nodeSymbole->tokenType != TYPE_INTEGER){
                     yyerrorSemantic( "Non numeric variable found");
                 }else{
                     char valeurString[255];
-                    if($1.nodeSymbol->type < simpleTypeNb)
-                        {
-                            getValeur($1.nodeSymbol, valeurString);
-                            if(isForLoop){
-                                pushFifo(quadFifo, creerQuadreplet("ADD", $1.nodeSymbol->nom, "1", $1.nodeSymbol->nom, qc));
-                            }else{
-                                insererQuadreplet(&q, "ADD", $1.nodeSymbol->nom, "1", $1.nodeSymbol->nom, qc);
-                                qc++;
-                            }
-                        
-                        }
-                    else
-                        {
-                            getArrayElement($1.nodeSymbol, $1.index, valeurString);
-                            char buff[255];
-                            sprintf(buff, "%s[%d]", $1.nodeSymbol->nom, $1.index);
-                        if(isForLoop){
-                            pushFifo(quadFifo, creerQuadreplet("ADD", buff, "1", buff, qc));
-                        }else{
-                            insererQuadreplet(&q, "ADD", buff, "1", buff, qc);
-                            qc++;
-                        }
-                        }
-                    if($1.nodeSymbol->type % simpleTypeNb == TYPE_INTEGER){
+                    if($1.nodeSymbole->tokenType < simpleTypeNb)
+                    {
+                        Quadruplet = addQuad(Quadruplet, "ADD", $1.nodeSymbole->symbolName, "1", $1.nodeSymbole->symbolName, qc);
+                        qc++;
+                    }
+                    if($1.nodeSymbole->tokenType  == TYPE_INTEGER){
+                        strcpy(valeurString ,getValue($1.nodeSymbole));
                         int valeur = atoi(valeurString);
                         valeur++;
                         sprintf(valeurString, "%d", valeur);
@@ -305,27 +329,55 @@ Affectation:
                         valeur++;
                         sprintf(valeurString,"%.4f",valeur);
                     };
-                    if($1.nodeSymbol->type < simpleTypeNb)
+
+                    if($1.nodeSymbole->tokenType < simpleTypeNb)
                         {
-                            setValeur($1.nodeSymbol, valeurString);
+                            setValue($1.nodeSymbole, valeurString);
                         }
-                    else
-                        {
-                            setArrayElement($1.nodeSymbol, $1.index, valeurString);
-                        }
+                }
                 }
             }
         }
         }
-    }
-    | Variable TOK_DEC
-    | Variable TOK_ADD_ASSIGN Expression
-    | Variable TOK_SUB_ASSIGN Expression
-    | Variable TOK_MUL_ASSIGN Expression
-    | Variable TOK_DIV_ASSIGN Expression
-    | Variable TOK_MOD_ASSIGN Expression
-    ;
-    ;
+    | Variable TOK_DEC {
+            if($1.nodeSymbole != NULL){
+            if(!$1.nodeSymbole->hasBeenInitialized){
+                yyerrorSemantic( "Variable not initialized");
+            }else{
+                if($1.nodeSymbole->isConstant){
+                    yyerrorSemantic("Cannot reassign a value to a constant");
+                }else{
+                if($1.nodeSymbole->tokenType != TYPE_FLOAT
+                && $1.nodeSymbole->tokenType != TYPE_INTEGER){
+                    yyerrorSemantic( "Non numeric variable found");
+                }else{
+                    char valeurString[255];
+                    if($1.nodeSymbole->tokenType < simpleTypeNb)
+                    {
+                        Quadruplet = addQuad(Quadruplet, "SUB", $1.nodeSymbole->symbolName, "1", $1.nodeSymbole->symbolName, qc);
+                        qc++;
+                    }
+                    if($1.nodeSymbole->tokenType  == TYPE_INTEGER){
+                        strcpy(valeurString ,getValue($1.nodeSymbole));
+                        int valeur = atoi(valeurString);
+                        valeur--;
+                        sprintf(valeurString, "%d", valeur);
+                        printf("valeur %d",valeur);
+                    }else{
+                        double valeur = atof(valeurString);
+                        valeur--;
+                        sprintf(valeurString,"%.4f",valeur);
+                    };
+
+                    if($1.nodeSymbole->tokenType < simpleTypeNb)
+                        {
+                            setValue($1.nodeSymbole, valeurString);
+                        }
+                }
+                }
+            }
+        }
+        };
 
 
 
@@ -438,10 +490,10 @@ void yysuccess(char *s){
 }
 
 void yyerror(const char *s) {
-    fprintf(stdout, "File '%s', line %d, character %d :  %s \n", file, yylineno, currentColumn, s);
+    fprintf(stdout, "\033[1;31mFile '%s', line %d, character %d :  %s \033[0m\n", file, yylineno, currentColumn, s);
 }
 void yyerrorSemantic(char *s){
-    fprintf(stdout, "File '%s', line %d, character %d, ssemantic error:%s\n", file, yylineno, currentColumn, s);
+    fprintf(stdout, "\033[1;31mFile '%s', line %d, character %d, semantic error: %s\033[0m\n", file, yylineno, currentColumn, s);
     return;
 }
 
