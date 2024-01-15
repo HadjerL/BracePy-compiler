@@ -24,8 +24,6 @@ quad teteQuad(char opra[], char opr1[], char opr2[], char res[], int i)
 // ajouter un quad dans la liste
 quad addQuad(quad tete, char opra[], char opr1[], char opr2[], char res[], int i)
 {
-    printf("JE SUIS DANS ADD QUAAAAAAAD \n");
-
     quad q;
     // Si la liste est vide donc ce quad va etre la téte de la liste
     if (tete == NULL)
@@ -78,21 +76,6 @@ quad updateQuad(quad tete, int qc, char *adr)
     return tete;
 }
 
-// void displayQuad(quad L){
-// printf("\n<<<<<<<<<<  Affichage des quads  >>>>>>>>>>\n");
-//     if (L==NULL){
-// 		printf("\n\n \t\t Quad Vide \n");
-// 	 }
-//     else{
-//        printf("**********************************************\n");
-//         while(L!=NULL){
-//            printf("\t Quad[%d]=[ %s , %s , %s , %s ] \n",L->qc,L->operateur,L->operande1,L->operande2,L->resultat); // On affiche
-//            L=L->Suivant;  // On avance d'une case
-//         }
-//     }
-// printf("**********************************************\n");
-// }
-
 void displayQuad(quad L)
 {
     printf("\n========================= Affichage des quads =========================\n");
@@ -117,9 +100,4 @@ void displayQuad(quad L)
     }
 
     printf("========================================================================\n");
-}
-
-void hola()
-{
-    printf("HOLLLA I AM INSIDE QUAD TEMCHI WLLA LA ");
 }

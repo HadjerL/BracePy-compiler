@@ -93,7 +93,7 @@
     void showLexicalError();
     SymboleTable * symboleTable = NULL;
     stockSauv * StockSauv;
-    quad * Quadruplet;
+    quad Quadruplet=NULL;
     int qc = 1;
     
 %}
@@ -228,24 +228,1541 @@ Arguments:
     | Expression TOK_VIRGULE Arguments
 
 Expression:
-    TOK_PAR_OUV Expression TOK_PAR_FER
-    | TOK_NOT Expression
-    | TOK_SUB Expression
-    | TOK_ADD Expression
+    TOK_PAR_OUV Expression TOK_PAR_FER {
+            $$=$2;
+    }   
+   
     | Expression TOK_AFFECT Expression
-    | Expression TOK_LE Expression
-    | Expression TOK_LT Expression
-    | Expression TOK_GT Expression
-    | Expression TOK_GE Expression
-    | Expression TOK_NE Expression
-    | Expression TOK_EQ Expression
-    | Expression TOK_OR Expression
-    | Expression TOK_AND Expression
-    | Expression TOK_ADD Expression
-    | Expression TOK_SUB Expression
-    | Expression TOK_MUL Expression
-    | Expression TOK_DIV Expression
-    | Expression TOK_MOD Expression
+    | Expression TOK_LT Expression {
+    // Check if the types of the two expressions are the same
+    if ($1.type == $3.type) {
+        $$.type = TYPE_BOOLEAN;
+
+        // Check if the type is string
+        if ($1.type == TYPE_STRING) {
+            if (strcmp($1.valeurString, $3.valeurString) < 0) {
+                $$.Valeurboolean = true;
+            } else {
+                $$.Valeurboolean = false;
+            }
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet based on variable types
+            if ($1.isVariable == true && $3.isVariable == true) {
+                Quadruplet = addQuad(Quadruplet, "<", $1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if ($1.isVariable == true) {
+                    strcpy(buff2, $3.valeurString);
+                    Quadruplet = addQuad(Quadruplet, "<", $1.nomVariable, buff2, res, qc);
+                } else {
+                    if ($3.isVariable == true) {
+                        strcpy(buff, $1.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "<", buff, $3.nomVariable, res, qc);
+                    } else {
+                        strcpy(buff, $1.valeurString);
+                        strcpy(buff2, $3.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "<", buff, buff2, res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // Check if the type is integer
+            if ($1.type == TYPE_INTEGER) {
+                if ($1.valeurInteger < $3.valeurInteger) {
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet based on variable types
+                if ($1.isVariable == true && $3.isVariable == true) {
+                    Quadruplet = addQuad(Quadruplet, "<", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if ($1.isVariable == true) {
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "<", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if ($3.isVariable == true) {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "<", buff, $3.nomVariable, res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "<", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else {
+                // Check if the type is float
+                if ($1.type == TYPE_FLOAT) {
+                    if ($1.valeurFloat < $3.valeurFloat) {
+                        $$.Valeurboolean = true;
+                    } else {
+                        $$.Valeurboolean = false;
+                    }
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet based on variable types
+                    if ($1.isVariable == true && $3.isVariable == true) {
+                        Quadruplet = addQuad(Quadruplet, "<", $1.nomVariable, $3.nomVariable, res, qc);
+                    } else {
+                        if ($1.isVariable == true) {
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "<", $1.nomVariable, buff2, res, qc);
+                        } else {
+                            if ($3.isVariable == true) {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "<", buff, $3.nomVariable, res, qc);
+                            } else {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "<", buff, buff2, res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    } else {
+        // Types are incompatible, throw an error
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+// Production rule for less than or equal (<=) comparison
+    |Expression TOK_LE Expression {
+    // Check if the types of the two expressions are the same
+    if ($1.type == $3.type) {
+        $$.type = TYPE_BOOLEAN;
+
+        // Check if the type is string
+        if ($1.type == TYPE_STRING) {
+            if (strcmp($1.valeurString, $3.valeurString) <= 0) {
+                $$.Valeurboolean = true;
+            } else {
+                $$.Valeurboolean = false;
+            }
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet based on variable types
+            if ($1.isVariable == true && $3.isVariable == true) {
+                Quadruplet = addQuad(Quadruplet, "<=",$1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if ($1.isVariable == true) {
+                    strcpy(buff2, $3.valeurString);
+                    Quadruplet = addQuad(Quadruplet, "<=",$1.nomVariable, buff2, res, qc);
+                } else {
+                    if ($3.isVariable == true) {
+                        strcpy(buff, $1.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "<=",buff,$3.nomVariable,res, qc);
+                    } else {
+                        strcpy(buff, $1.valeurString);
+                        strcpy(buff2, $3.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "<=",buff,buff2,res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // Check if the type is integer
+            if ($1.type == TYPE_INTEGER) {
+                if ($1.valeurInteger <= $3.valeurInteger) {
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R",qc);
+                strcpy($$.nomVariable,res);
+                $$.isVariable=true;
+
+                // Generate quadruplet based on variable types
+                if ($1.isVariable == true && $3.isVariable == true) {
+                    Quadruplet=addQuad(Quadruplet, "<=",$1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if ($1.isVariable==true) {
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet=addQuad(Quadruplet, "<=",$1.nomVariable, buff2, res, qc);
+                    } else {
+                        if ($3.isVariable==true) {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet=addQuad(Quadruplet, "<=",buff,$3.nomVariable,res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet=addQuad(Quadruplet, "<=",buff,buff2,res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else {
+                // Check if the type is float
+                if ($1.type == TYPE_FLOAT) {
+                    if ($1.valeurFloat <= $3.valeurFloat) {
+                        $$.Valeurboolean=true;
+                    } else {
+                        $$.Valeurboolean=false;
+                    }
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R",qc);
+                    strcpy($$.nomVariable,res);
+                    $$.isVariable=true;
+
+                    // Generate quadruplet based on variable types
+                    if ($1.isVariable == true && $3.isVariable == true) {
+                        Quadruplet=addQuad(Quadruplet, "<=",$1.nomVariable, $3.nomVariable, res, qc);
+                    } else {
+                        if ($1.isVariable==true) {
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet=addQuad(Quadruplet, "<=",$1.nomVariable, buff2, res, qc);
+                        } else {
+                            if ($3.isVariable==true) {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet=addQuad(Quadruplet, "<=",buff,$3.nomVariable,res, qc);
+                            } else {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet=addQuad(Quadruplet, "<=",buff,buff2,res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    } else {
+        // Types are incompatible, throw an error
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+ // Production rule for greater than (>) comparison
+|Expression TOK_GT Expression {
+    // Check if the types of the two expressions are the same
+    if ($1.type == $3.type) {
+        $$.type = TYPE_BOOLEAN;
+
+        // Check if the type is string
+        if ($1.type == TYPE_STRING) {
+            if (strcmp($1.valeurString, $3.valeurString) > 0) {
+                $$.Valeurboolean = true;
+            } else {
+                $$.Valeurboolean = false;
+            }
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet based on variable types
+            if ($1.isVariable == true && $3.isVariable == true) {
+                Quadruplet = addQuad(Quadruplet, ">", $1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if ($1.isVariable == true) {
+                    strcpy(buff2, $3.valeurString);
+                    Quadruplet = addQuad(Quadruplet, ">", $1.nomVariable, buff2, res, qc);
+                } else {
+                    if ($3.isVariable == true) {
+                        strcpy(buff, $1.valeurString);
+                        Quadruplet = addQuad(Quadruplet, ">", buff, $3.nomVariable, res, qc);
+                    } else {
+                        strcpy(buff, $1.valeurString);
+                        strcpy(buff2, $3.valeurString);
+                        Quadruplet = addQuad(Quadruplet, ">", buff, buff2, res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // Check if the type is integer
+            if ($1.type == TYPE_INTEGER) {
+                if ($1.valeurInteger > $3.valeurInteger) {
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet based on variable types
+                if ($1.isVariable == true && $3.isVariable == true) {
+                    Quadruplet = addQuad(Quadruplet, ">", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if ($1.isVariable == true) {
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, ">", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if ($3.isVariable == true) {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, ">", buff, $3.nomVariable, res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, ">", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else {
+                // Check if the type is float
+                if ($1.type == TYPE_FLOAT) {
+                    if ($1.valeurFloat > $3.valeurFloat) {
+                        $$.Valeurboolean = true;
+                    } else {
+                        $$.Valeurboolean = false;
+                    }
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet based on variable types
+                    if ($1.isVariable == true && $3.isVariable == true) {
+                        Quadruplet = addQuad(Quadruplet, ">", $1.nomVariable, $3.nomVariable, res, qc);
+                    } else {
+                        if ($1.isVariable == true) {
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, ">", $1.nomVariable, buff2, res, qc);
+                        } else {
+                            if ($3.isVariable == true) {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, ">", buff, $3.nomVariable, res, qc);
+                            } else {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, ">", buff, buff2, res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    } else {
+        // Types are incompatible, throw an error
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+  // Production rule for greater than or equal (>=) comparison
+|Expression TOK_GE Expression {
+    // Check if the types of the two expressions are the same
+    if ($1.type == $3.type) {
+        $$.type = TYPE_BOOLEAN;
+
+        // Check if the type is string
+        if ($1.type == TYPE_STRING) {
+            if (strcmp($1.valeurString, $3.valeurString) >= 0) {
+                $$.Valeurboolean = true;
+            } else {
+                $$.Valeurboolean = false;
+            }
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet based on variable types
+            if ($1.isVariable == true && $3.isVariable == true) {
+                Quadruplet = addQuad(Quadruplet, ">=",$1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if ($1.isVariable == true) {
+                    strcpy(buff2, $3.valeurString);
+                    Quadruplet = addQuad(Quadruplet, ">=",$1.nomVariable, buff2, res, qc);
+                } else {
+                    if ($3.isVariable == true) {
+                        strcpy(buff, $1.valeurString);
+                        Quadruplet = addQuad(Quadruplet, ">=",buff,$3.nomVariable,res, qc);
+                    } else {
+                        strcpy(buff, $1.valeurString);
+                        strcpy(buff2, $3.valeurString);
+                        Quadruplet = addQuad(Quadruplet, ">=",buff,buff2,res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // Check if the type is integer
+            if ($1.type == TYPE_INTEGER) {
+                if ($1.valeurInteger >= $3.valeurInteger) {
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet based on variable types
+                if ($1.isVariable == true && $3.isVariable == true) {
+                    Quadruplet = addQuad(Quadruplet, ">=",$1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if ($1.isVariable == true) {
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, ">=",$1.nomVariable, buff2, res, qc);
+                    } else {
+                        if ($3.isVariable == true) {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, ">=",buff,$3.nomVariable,res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, ">=",buff,buff2,res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else {
+                // Check if the type is float
+                if ($1.type == TYPE_FLOAT) {
+                    if ($1.valeurFloat >= $3.valeurFloat) {
+                        $$.Valeurboolean = true;
+                    } else {
+                        $$.Valeurboolean = false;
+                    }
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet based on variable types
+                    if ($1.isVariable == true && $3.isVariable == true) {
+                        Quadruplet = addQuad(Quadruplet, ">=",$1.nomVariable, $3.nomVariable, res, qc);
+                    } else {
+                        if ($1.isVariable == true) {
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, ">=",$1.nomVariable, buff2, res, qc);
+                        } else {
+                            if ($3.isVariable == true) {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, ">=",buff,$3.nomVariable,res, qc);
+                            } else {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, ">=",buff,buff2,res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    } else {
+        // Types are incompatible, throw an error
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+    // Production rule for equal (==) comparison
+| Expression TOK_EQ Expression {
+    if ($1.type == $3.type) {
+        $$.type = TYPE_BOOLEAN;
+
+        // Check if the type is string
+        if ($1.type == TYPE_STRING) {
+            if (strcmp($1.valeurString, $3.valeurString) == 0) {
+                $$.Valeurboolean = true;
+            } else {
+                $$.Valeurboolean = false;
+            }
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet based on variable types
+            if ($1.isVariable == true && $3.isVariable == true) {
+                Quadruplet = addQuad(Quadruplet, "==", $1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if ($1.isVariable == true) {
+                    strcpy(buff2, $3.valeurString);
+                    Quadruplet = addQuad(Quadruplet, "==", $1.nomVariable, buff2, res, qc);
+                } else {
+                    if ($3.isVariable == true) {
+                        strcpy(buff, $1.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "==", buff, $3.nomVariable, res, qc);
+                    } else {
+                        strcpy(buff, $1.valeurString);
+                        strcpy(buff2, $3.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "==", buff, buff2, res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // Check if the type is integer
+            if ($1.type == TYPE_INTEGER) {
+                if ($1.valeurInteger == $3.valeurInteger) {
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet based on variable types
+                if ($1.isVariable == true && $3.isVariable == true) {
+                    Quadruplet = addQuad(Quadruplet, "==", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if ($1.isVariable == true) {
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "==", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if ($3.isVariable == true) {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "==", buff, $3.nomVariable, res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "==", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else {
+                // Check if the type is float
+                if ($1.type == TYPE_FLOAT) {
+                    if ($1.valeurFloat == $3.valeurFloat) {
+                        $$.Valeurboolean = true;
+                    } else {
+                        $$.Valeurboolean = false;
+                    }
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet based on variable types
+                    if ($1.isVariable == true && $3.isVariable == true) {
+                        Quadruplet = addQuad(Quadruplet, "==", $1.nomVariable, $3.nomVariable, res, qc);
+                    } else {
+                        if ($1.isVariable == true) {
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "==", $1.nomVariable, buff2, res, qc);
+                        } else {
+                            if ($3.isVariable == true) {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "==", buff, $3.nomVariable, res, qc);
+                            } else {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "==", buff, buff2, res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    } else {
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+// Production rule for not equal (!=) comparison
+| Expression TOK_NE Expression {
+    if ($1.type == $3.type) {
+        $$.type = TYPE_BOOLEAN;
+
+        // Check if the type is string
+        if ($1.type == TYPE_STRING) {
+            if (strcmp($1.valeurString, $3.valeurString) != 0) {
+                $$.Valeurboolean = true;
+            } else {
+                $$.Valeurboolean = false;
+            }
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet based on variable types
+            if ($1.isVariable == true && $3.isVariable == true) {
+                Quadruplet = addQuad(Quadruplet, "!=", $1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if ($1.isVariable == true) {
+                    strcpy(buff2, $3.valeurString);
+                    Quadruplet = addQuad(Quadruplet, "!=", $1.nomVariable, buff2, res, qc);
+                } else {
+                    if ($3.isVariable == true) {
+                        strcpy(buff, $1.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "!=", buff, $3.nomVariable, res, qc);
+                    } else {
+                        strcpy(buff, $1.valeurString);
+                        strcpy(buff2, $3.valeurString);
+                        Quadruplet = addQuad(Quadruplet, "!=", buff, buff2, res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // Check if the type is integer
+            if ($1.type == TYPE_INTEGER) {
+                if ($1.valeurInteger != $3.valeurInteger) {
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet based on variable types
+                if ($1.isVariable == true && $3.isVariable == true) {
+                    Quadruplet = addQuad(Quadruplet, "!=", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if ($1.isVariable == true) {
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "!=", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if ($3.isVariable == true) {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "!=", buff, $3.nomVariable, res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "!=", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else {
+                // Check if the type is float
+                if ($1.type == TYPE_FLOAT) {
+                    if ($1.valeurFloat != $3.valeurFloat) {
+                        $$.Valeurboolean = true;
+                    } else {
+                        $$.Valeurboolean = false;
+                    }
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet based on variable types
+                    if ($1.isVariable == true && $3.isVariable == true) {
+                        Quadruplet = addQuad(Quadruplet, "!=", $1.nomVariable, $3.nomVariable, res, qc);
+                    } else {
+                        if ($1.isVariable == true) {
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "!=", $1.nomVariable, buff2, res, qc);
+                        } else {
+                            if ($3.isVariable == true) {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "!=", buff, $3.nomVariable, res, qc);
+                            } else {
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "!=", buff, buff2, res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    } else {
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+// Production rule for logical NOT (!) expression
+| TOK_NOT Expression {
+    if ($2.type == TYPE_BOOLEAN) {
+        $$.type = TYPE_BOOLEAN;
+        $$.Valeurboolean = !$2.Valeurboolean;
+
+        // Create temporary buffers and result variable
+        char buff[255];
+        char res[20];
+        strcpy(buff, ($2.Valeurboolean == true) ? "true" : "false");
+        sprintf(res, "%s%d", "R", qc);
+        strcpy($$.nomVariable, res);
+        $$.isVariable = true;
+
+        // Generate quadruplet for logical NOT operation
+        Quadruplet = addQuad(Quadruplet, "NOT", buff, "", res, qc);
+        qc++;
+    } else {
+        yyerrorSemantic("Can't do NOT of non-boolean type");
+    }
+}
+
+   // Production rule for unary minus operation
+| TOK_SUB Expression {
+    // Check if the expression is not a string
+    if ($2.type != TYPE_STRING) {
+        // Check if the expression is an integer
+        if ($2.type == TYPE_INTEGER) {
+            $$.type = TYPE_INTEGER;
+            $$.valeurInteger = 0 - $2.valeurInteger;
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char res[20];
+            sprintf(buff, "%d", $2.valeurInteger);
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet for the unary minus operation
+            Quadruplet = addQuad(Quadruplet, "-", "0", buff, res, qc);
+            qc++;
+        } else {
+            // Check if the expression is a float
+            if ($2.type == TYPE_FLOAT) {
+                $$.type = TYPE_FLOAT;
+                $$.valeurFloat = 0.0 - $2.valeurFloat;
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char res[20];
+                sprintf(buff, "%f", $2.valeurFloat);
+                sprintf(res, "%s%d", "R", qc);
+
+                // Generate quadruplet for the unary minus operation
+                Quadruplet = addQuad(Quadruplet, "-", "0", buff, res, qc);
+                qc++;
+            }
+        }
+    } else {
+        // Error handling for unary minus applied to a string
+        yyerrorSemantic("Y'a pas une expression arithmétique");
+    }
+}
+  
+ // Production rule for logical AND operation
+| Expression TOK_AND Expression {
+    // Check if both operands are of type boolean
+    if ($1.type == TYPE_BOOLEAN && $3.type == TYPE_BOOLEAN) {
+        // Perform logical AND operation
+        if ($1.Valeurboolean && $3.Valeurboolean) {
+            $$.Valeurboolean = true;
+        } else {
+            $$.Valeurboolean = false;
+        }
+
+        // Create temporary buffers and result variable
+        char buff[255];
+        char buff2[255];
+        char res[20];
+        sprintf(res, "%s%d", "R", qc);
+        strcpy($$.nomVariable, res);
+        $$.isVariable = true;
+
+        // Generate quadruplet for logical AND operation
+        if ($1.isVariable == true && $3.isVariable == true) {
+            Quadruplet = addQuad(Quadruplet, "AND", $1.nomVariable, $3.nomVariable, res, qc);
+        } else {
+            if ($1.isVariable == true) {
+                strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                Quadruplet = addQuad(Quadruplet, "AND", $1.nomVariable, buff2, res, qc);
+            } else {
+                if ($3.isVariable == true) {
+                    strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                    Quadruplet = addQuad(Quadruplet, "AND", buff, $3.nomVariable, res, qc);
+                } else {
+                    strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                    strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                    Quadruplet = addQuad(Quadruplet, "AND", buff, buff2, res, qc);
+                }
+            }
+        }
+        qc++;
+    } else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+// Production rule for logical OR operation
+| Expression TOK_OR Expression {
+    // Check if both operands are of type boolean
+    if ($1.type == TYPE_BOOLEAN && $3.type == TYPE_BOOLEAN) {
+        // Perform logical OR operation
+        if ($1.Valeurboolean || $3.Valeurboolean) {
+            $$.Valeurboolean = true;
+        } else {
+            $$.Valeurboolean = false;
+        }
+
+        // Create temporary buffers and result variable
+        char buff[255];
+        char buff2[255];
+        char res[20];
+        sprintf(res, "%s%d", "R", qc);
+        strcpy($$.nomVariable, res);
+        $$.isVariable = true;
+
+        // Generate quadruplet for logical OR operation
+        if ($1.isVariable == true && $3.isVariable == true) {
+            Quadruplet = addQuad(Quadruplet, "OR", $1.nomVariable, $3.nomVariable, res, qc);
+        } else {
+            if ($1.isVariable == true) {
+                strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                Quadruplet = addQuad(Quadruplet, "OR", $1.nomVariable, buff2, res, qc);
+            } else {
+                if ($3.isVariable == true) {
+                    strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                    Quadruplet = addQuad(Quadruplet, "OR", buff, $3.nomVariable, res, qc);
+                } else {
+                    strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                    strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                    Quadruplet = addQuad(Quadruplet, "OR", buff, buff2, res, qc);
+                }
+            }
+        }
+        qc++;
+    } else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+// Production rule for addition operation
+| Expression TOK_ADD Expression{
+    // Check if both operands are of the same type
+    if($1.type == $3.type){
+        // If the type is string, concatenate the strings
+        if($1.type == TYPE_STRING){
+            strcpy($$.valeurString, $1.valeurString);
+            strcat($$.valeurString, $3.valeurString);
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet for string concatenation
+            if($1.isVariable == true && $3.isVariable == true){
+                Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, $3.nomVariable, res, qc);
+            } else {
+                if($1.isVariable == true){
+                    Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, $3.valeurString, res, qc);
+                } else {
+                    if($3.isVariable == true){
+                        Quadruplet = addQuad(Quadruplet, "+", $1.valeurString, $3.nomVariable, res, qc);
+                    } else {
+                        Quadruplet = addQuad(Quadruplet, "+", $1.valeurString, $3.valeurString, res, qc);
+                    }
+                }
+            }
+            qc++;
+        } else {
+            // For integer, float, and boolean types, perform arithmetic or boolean addition
+            if($1.type == TYPE_INTEGER){
+                $$.valeurInteger = $1.valeurInteger + $3.valeurInteger;
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet for integer addition
+                if($1.isVariable == true && $3.isVariable == true){
+                    Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if($1.isVariable == true){
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if($3.isVariable == true){
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "+", buff, $3.nomVariable, res, qc);
+                        } else {
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "+", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else if($1.type == TYPE_FLOAT){
+                $$.valeurFloat = $1.valeurFloat + $3.valeurFloat;
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet for float addition
+                if($1.isVariable == true && $3.isVariable == true){
+                    Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if($1.isVariable == true){
+                        sprintf(buff2, "%f", $3.valeurFloat);
+                        Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if($3.isVariable == true){
+                            sprintf(buff, "%f", $1.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "+", buff, $3.nomVariable, res, qc);
+                        } else {
+                            sprintf(buff, "%f", $1.valeurFloat);
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "+", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            } else if($1.type == TYPE_BOOLEAN){
+                $$.type = TYPE_BOOLEAN;
+                // Perform boolean OR operation
+                if(($1.Valeurboolean) || ($3.Valeurboolean)){
+                    $$.Valeurboolean = true;
+                } else {
+                    $$.Valeurboolean = false;
+                }
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet for boolean OR operation
+                if($1.isVariable == true && $3.isVariable == true){
+                    Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, $3.nomVariable, res, qc);
+                } else {
+                    if($1.isVariable == true){
+                        strcpy(buff, ($3.Valeurboolean == true) ? "true" : "false");
+                        Quadruplet = addQuad(Quadruplet, "+", $1.nomVariable, buff2, res, qc);
+                    } else {
+                        if($3.isVariable == true){
+                            strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                            Quadruplet = addQuad(Quadruplet, "+", buff, $3.nomVariable, res, qc);
+                        } else {
+                            strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                            strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                            Quadruplet = addQuad(Quadruplet, "+", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            }
+        }
+    }
+    else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+   // Production rule for subtraction operation
+| Expression TOK_SUB Expression{
+    // Check if both operands are of the same type and not string
+    if($1.type == $3.type && $3.type != TYPE_STRING){
+        // Check if subtraction involves boolean type (not supported)
+        if($1.type == TYPE_BOOLEAN ){
+            yyerrorSemantic("Could not perform subtraction of boolean");
+        }
+        else{
+            // Perform subtraction for integer and float types
+            if($1.type == TYPE_INTEGER){
+                $$.valeurInteger = $1.valeurInteger - $3.valeurInteger;
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet for integer subtraction
+                if($1.isVariable == true & $3.isVariable == true) {
+                    Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, $3.nomVariable, res, qc);
+                }
+                else{
+                    if($1.isVariable == true){
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, buff2, res, qc);
+                    }
+                    else{
+                        if($3.isVariable == true){
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "-", buff, $3.nomVariable, res, qc);
+                        }
+                        else{
+                            sprintf(buff, "%d", $1.valeurInteger);
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "-", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            }
+            else {
+                if($1.type == TYPE_FLOAT){
+                    $$.valeurFloat = $1.valeurFloat - $3.valeurFloat;
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet for float subtraction
+                    if($1.isVariable == true & $3.isVariable == true){
+                        Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, $3.nomVariable, res, qc);
+                    }
+                    else{
+                        if($1.isVariable == true){
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, buff2, res, qc);
+                        }
+                        else{
+                            if($3.isVariable == true){
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "-", buff, $3.nomVariable, res, qc);
+                            }
+                            else{
+                                sprintf(buff, "%f", $1.valeurFloat);
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "-", buff, buff2, res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    }
+    else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
+  // Production rule for multiplication operation
+| Expression TOK_MUL Expression {
+    // Check if both operands are of the same type
+    if($1.type == $3.type){
+        // Check if the common type is integer
+        if($1.type == TYPE_INTEGER){
+            // Perform multiplication for integer type
+            $$.valeurInteger = $1.valeurInteger * $3.valeurInteger;
+
+            // Create temporary buffers and result variable
+            char buff[255];
+            char buff2[255];
+            char res[20];
+            sprintf(res, "%s%d", "R", qc);
+            strcpy($$.nomVariable, res);
+            $$.isVariable = true;
+
+            // Generate quadruplet for integer multiplication
+            if($1.isVariable == true & $3.isVariable == true){
+                Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, $3.nomVariable, res, qc);
+            }
+            else{
+                if($1.isVariable == true){
+                    sprintf(buff2, "%d", $3.valeurInteger);
+                    Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, buff2, res, qc);
+                }
+                else{
+                    if($3.isVariable == true){
+                        sprintf(buff, "%d", $1.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "*", buff, $3.nomVariable, res, qc);
+                    }
+                    else{
+                        sprintf(buff, "%d", $1.valeurInteger);
+                        sprintf(buff2, "%d", $3.valeurInteger);
+                        Quadruplet = addQuad(Quadruplet, "*", buff, buff2, res, qc);
+                    }
+                }
+            }
+            qc++;
+        }
+        else {
+            // Check if the common type is float
+            if($1.type == TYPE_FLOAT){
+                // Perform multiplication for float type
+                $$.valeurFloat = $1.valeurFloat * $3.valeurFloat;
+
+                // Create temporary buffers and result variable
+                char buff[255];
+                char buff2[255];
+                char res[20];
+                sprintf(res, "%s%d", "R", qc);
+                strcpy($$.nomVariable, res);
+                $$.isVariable = true;
+
+                // Generate quadruplet for float multiplication
+                if($1.isVariable == true & $3.isVariable == true){
+                    Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, $3.nomVariable, res, qc);
+                }
+                else{
+                    if($1.isVariable == true){
+                        sprintf(buff2, "%f", $3.valeurFloat);
+                        Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, buff2, res, qc);
+                    }
+                    else{
+                        if($3.isVariable == true){
+                            sprintf(buff, "%f", $1.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "*", buff, $3.nomVariable, res, qc);
+                        }
+                        else{
+                            sprintf(buff, "%f", $1.valeurFloat);
+                            sprintf(buff2, "%f", $3.valeurFloat);
+                            Quadruplet = addQuad(Quadruplet, "*", buff, buff2, res, qc);
+                        }
+                    }
+                }
+                qc++;
+            }
+            else {
+                // Check if the common type is boolean
+                if($1.type == TYPE_BOOLEAN){
+                    $$.type = TYPE_BOOLEAN;
+
+                    // Perform multiplication for boolean type
+                    if(($1.Valeurboolean) && ($3.Valeurboolean)){
+                        $$.Valeurboolean = true;
+                    }
+                    else{
+                        $$.Valeurboolean = false;
+                    };
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet for boolean multiplication
+                    if($1.isVariable == true & $3.isVariable == true){
+                        Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, $3.nomVariable, res, qc);
+                    }
+                    else{
+                        if($1.isVariable == true) {
+                            strcpy(buff, ($3.Valeurboolean == true) ? "true" : "false");
+                            Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, buff2, res, qc);
+                        }
+                        else{
+                            if($3.isVariable == true){
+                                strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                                Quadruplet = addQuad(Quadruplet, "*", buff, $3.nomVariable, res, qc);
+                            }
+                            else{
+                                strcpy(buff, ($1.Valeurboolean == true) ? "true" : "false");
+                                strcpy(buff2, ($3.Valeurboolean == true) ? "true" : "false");
+                                Quadruplet = addQuad(Quadruplet, "*", buff, buff2, res, qc);
+                            }
+                        }
+                    }
+                    qc++;
+                }
+            }
+        }
+    }
+    else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+// Production rule for division operation
+| Expression TOK_DIV Expression {
+    // Check if both operands are of the same type
+    if($1.type == $3.type){
+        // Check for division by zero
+        if((($3.type == TYPE_INTEGER) && ($3.valeurInteger == 0)) || (($3.type == TYPE_FLOAT) && ($3.valeurFloat == 0.0))){
+            yyerrorSemantic("Division by zero");
+        }
+        else {
+            // Check if the common type is string
+            if($1.type == TYPE_STRING){
+                yyerrorSemantic("Type Incompatible");
+            }
+            else {
+                // Check if the common type is integer
+                if($1.type == TYPE_INTEGER){
+                    // Perform division for integer type
+                    $$.valeurInteger = $1.valeurInteger / $3.valeurInteger;
+
+                    // Create temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplet for integer division
+                    if($1.isVariable == true && $3.isVariable == true){
+                        Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, $3.nomVariable, res, qc);
+                        qc++;
+                    }
+                    else {
+                        if($1.isVariable == true){
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, buff2, res, qc);
+                            qc++;
+                        }
+                        else {
+                            if($3.isVariable == true){
+                                sprintf(buff, "%d", $1.valeurInteger);
+                                Quadruplet = addQuad(Quadruplet, "/", buff, $3.nomVariable, res, qc);
+                                qc++;
+                            }
+                            else {
+                                sprintf(buff, "%d", $1.valeurInteger);
+                                sprintf(buff2, "%d", $3.valeurInteger);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "/", buff, buff2, res, qc);
+                                qc++;
+                            }
+                        }
+                    }
+                }
+                else {
+                    // Check if the common type is float
+                    if($1.type == TYPE_FLOAT){
+                        // Perform division for float type
+                        $$.valeurFloat = $1.valeurFloat / $3.valeurFloat;
+
+                        // Create temporary buffers and result variable
+                        char buff2[255];
+                        char buff[255];
+                        char res[20];
+                        sprintf(res, "%s%d", "R", qc);
+                        strcpy($$.nomVariable, res);
+                        $$.isVariable = true;
+
+                        // Generate quadruplet for float division
+                        if($1.isVariable == true && $3.isVariable == true){
+                            Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, $3.nomVariable, res, qc);
+                            qc++;
+                        }
+                        else {
+                            if($1.isVariable == true){
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, buff2, res, qc);
+                                qc++;
+                            }
+                            else {
+                                if($3.isVariable == true){
+                                    sprintf(buff, "%f", $1.valeurFloat);
+                                    Quadruplet = addQuad(Quadruplet, "/", buff, $3.nomVariable, res, qc);
+                                    qc++;
+                                }
+                                else {
+                                    sprintf(buff, "%f", $1.valeurFloat);
+                                    sprintf(buff2, "%f", $3.valeurFloat);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    Quadruplet = addQuad(Quadruplet, "/", buff, buff2, res, qc);
+                                    qc++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+// Production rule for modulo operation
+| Expression TOK_MOD Expression {
+    // Check if both operands are of the same type
+    if($1.type == $3.type){
+        // Check for division by zero
+        if((($3.type == TYPE_INTEGER) && ($3.valeurInteger == 0)) || (($3.type == TYPE_FLOAT) && ($3.valeurFloat == 0.0))){
+            yyerrorSemantic("Division by zero");
+        }
+        else {
+            // Check if the common type is string
+            if($$.type == TYPE_STRING){
+                yyerrorSemantic("Type Incompatible");
+            }
+            else {
+                // Check if the common type is integer
+                if($$.type == TYPE_INTEGER){
+                    // Perform modulo for integer type
+                    $$.valeurInteger = $1.valeurInteger % $3.valeurInteger;
+
+                    // Temporary buffers and result variable
+                    char buff[255];
+                    char buff2[255];
+                    char res[20];
+                    sprintf(res, "%s%d", "R", qc);
+                    strcpy($$.nomVariable, res);
+                    $$.isVariable = true;
+
+                    // Generate quadruplets for integer modulo
+                    if($1.isVariable == true && $3.isVariable == true){
+                        Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, $3.nomVariable, res, qc);
+                        qc++;
+                        sprintf(res, "%s%d", "R", qc);
+                        Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, $3.nomVariable, res, qc);
+                        qc++;
+                        sprintf(res, "%s%d", "R", qc);
+                        Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, $3.nomVariable, res, qc);
+                        sprintf(res, "%s%d", "R", qc);
+                        strcpy($$.nomVariable, res);
+                        $$.isVariable = true;
+                        qc++;
+                    }
+                    else {
+                        if($1.isVariable == true){
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, buff2, res, qc);
+                            qc++;
+                            sprintf(buff2, "%d", $3.valeurInteger);
+                            sprintf(res, "%s%d", "R", qc);
+                            Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, buff2, res, qc);
+                            qc++;
+                            strcpy(buff2, res);
+                            sprintf(res, "%s%d", "R", qc);
+                            Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, buff2, res, qc);
+                            sprintf(res, "%s%d", "R", qc);
+                            strcpy($$.nomVariable, res);
+                            $$.isVariable = true;
+                            qc++;
+                        }
+                        else {
+                            if($3.isVariable == true){
+                                sprintf(buff, "%d", $1.valeurInteger);
+                                Quadruplet = addQuad(Quadruplet, "/", buff, $3.nomVariable, res, qc);
+                                qc++;
+                                strcpy(buff, res);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "*", buff, $3.nomVariable, res, qc);
+                                qc++;
+                                sprintf(buff, "%d", $1.valeurInteger);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "-", buff, $3.nomVariable, res, qc);
+                                sprintf(res, "%s%d", "R", qc);
+                                strcpy($$.nomVariable, res);
+                                $$.isVariable = true;
+                                qc++;
+                            }
+                            else {
+                                sprintf(buff, "%d", $1.valeurInteger);
+                                sprintf(buff2, "%d", $3.valeurInteger);
+                                Quadruplet = addQuad(Quadruplet, "/", buff, buff2, res, qc);
+                                qc++;
+                                strcpy(buff, res);
+                                sprintf(buff2, "%d", $3.valeurInteger);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "*", buff, buff2, res, qc);
+                                qc++;
+                                sprintf(buff, "%d", $1.valeurInteger);
+                                strcpy(buff2, res);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "-", buff, buff2, res, qc);
+                                sprintf(res, "%s%d", "R", qc);
+                                strcpy($$.nomVariable, res);
+                                $$.isVariable = true;
+                                qc++;
+                            }
+                        }
+                    }
+                }
+                else {
+                    // Check if the common type is float
+                    if($$.type == TYPE_FLOAT){
+                        // Perform modulo for float type
+                        $$.valeurFloat = fmod($1.valeurFloat, $3.valeurFloat);
+
+                        // Temporary buffers and result variable
+                        char buff2[255];
+                        char buff[255];
+                        char res[20];
+                        sprintf(res, "%s%d", "R", qc);
+                        strcpy($$.nomVariable, res);
+                        $$.isVariable = true;
+
+                        // Generate quadruplets for float modulo
+                        if($1.isVariable == true && $3.isVariable == true){
+                            Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, $3.nomVariable, res, qc);
+                            qc++;
+                            sprintf(res, "%s%d", "R", qc);
+                            Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, $3.nomVariable, res, qc);
+                            qc++;
+                            sprintf(res, "%s%d", "R", qc);
+                            Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, $3.nomVariable, res, qc);
+                            sprintf(res, "%s%d", "R", qc);
+                            strcpy($$.nomVariable, res);
+                            $$.isVariable = true;
+                            qc++;
+                        }
+                        else {
+                            if($1.isVariable == true){
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                Quadruplet = addQuad(Quadruplet, "/", $1.nomVariable, buff2, res, qc);
+                                qc++;
+                                sprintf(buff2, "%f", $3.valeurFloat);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "*", $1.nomVariable, buff2, res, qc);
+                                qc++;
+                                strcpy(buff2, res);
+                                sprintf(res, "%s%d", "R", qc);
+                                Quadruplet = addQuad(Quadruplet, "-", $1.nomVariable, buff2, res, qc);
+                                sprintf(res, "%s%d", "R", qc);
+                                strcpy($$.nomVariable, res);
+                                $$.isVariable = true;
+                                qc++;
+                            }
+                            else {
+                                if($3.isVariable == true){
+                                    sprintf(buff, "%f", $1.valeurFloat);
+                                    Quadruplet = addQuad(Quadruplet, "/", buff, $3.nomVariable, res, qc);
+                                    qc++;
+                                    strcpy(buff, res);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    Quadruplet = addQuad(Quadruplet, "*", buff, $3.nomVariable, res, qc);
+                                    qc++;
+                                    sprintf(buff, "%f", $1.valeurFloat);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    Quadruplet = addQuad(Quadruplet, "-", buff, $3.nomVariable, res, qc);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    strcpy($$.nomVariable, res);
+                                    $$.isVariable = true;
+                                    qc++;
+                                }
+                                else {
+                                    sprintf(buff, "%f", $1.valeurFloat);
+                                    sprintf(buff2, "%f", $3.valeurFloat);
+                                    Quadruplet = addQuad(Quadruplet, "/", buff, buff2, res, qc);
+                                    qc++;
+                                    strcpy(buff, res);
+                                    sprintf(buff2, "%f", $3.valeurFloat);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    Quadruplet = addQuad(Quadruplet, "*", buff, buff2, res, qc);
+                                    qc++;
+                                    sprintf(buff, "%f", $1.valeurFloat);
+                                    strcpy(buff2, res);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    Quadruplet = addQuad(Quadruplet, "-", buff, buff2, res, qc);
+                                    sprintf(res, "%s%d", "R", qc);
+                                    strcpy($$.nomVariable, res);
+                                    $$.isVariable = true;
+                                    qc++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else {
+        // Error handling for incompatible types
+        yyerrorSemantic("Type Incompatible");
+    }
+}
+
     | Expression TOK_POW Expression
     | Valeur
     | Variable;
@@ -548,7 +2065,6 @@ void showLexicalError() {
 
 
 }
-
 
 
 
