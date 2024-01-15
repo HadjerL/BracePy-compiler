@@ -1,27 +1,2 @@
-import "abc";
-def int mian(){
-   const int a = 1;
-   if(a>b){
-      print("Hello");
-   }
-   elif(a<b){
-      print("hey");
-   }else{
-      print("pinguin");
-   };
-   int a = 1 + 2;
-   func1(1,3);
-   array int[2] myArray = [2,3,2];
-   switch (a){
-      case 2:
-         print("zoj");
-      case 3:
-         print("thlatha");
-      default:
-         print("blah blah");
-   };
-}
 
-def int func1(int a, int b){
-   return a + b;
-}
+   const int a = 1;
