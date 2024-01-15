@@ -1,7 +1,8 @@
 #include <stdbool.h>
 
 typedef struct expression expression;
-struct expression{
+struct expression
+{
     int type;
     char nomVariable[50];
     bool isVariable;
@@ -12,16 +13,17 @@ struct expression{
 };
 
 typedef struct tableau tableau;
-struct tableau{
+struct tableau
+{
     int type;
     int taille;
     char tabValeur[128][32];
 };
 
 typedef struct variable variable;
-struct variable{
-    struct NodeSymbol * nodeSymbole;
+struct variable
+{
+    struct NodeSymbol *nodeSymbole;
 };
 
-
-void valeurToString(expression expression, char * valeur);
+void valeurToString(expression expression, char *valeur);

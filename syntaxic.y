@@ -157,7 +157,27 @@ Statement:
     | TOK_RETURN Expression TOK_POINT_VIRGULE;
 
 DeclarationInitialisation:
-    DeclarationSimple TOK_AFFECT Expression
+    DeclarationSimple TOK_AFFECT Expression{
+            if($1 != NULL){
+            if($1->tokenType == $3.type){
+                char valeurString[255];
+                valeurToString($3, valeurString);
+                setValue($1, valeurString);
+                if($3.isVariable)
+                {
+                    Quadruplet = addQuad(Quadruplet, ":=", $3.nomVariable, "", $1->symbolName, qc);
+                }
+                else
+                {
+                                        Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", $1->symbolName, qc);
+
+                }
+                qc++;
+            }else{
+                yyerrorSemantic( "Type mismatch");
+            }
+        }
+    }
     ;
 
 DeclarationSimple:

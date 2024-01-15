@@ -614,14 +614,14 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,   103,   127,   128,   129,   130,   144,   146,   149,   150,
-     151,   152,   153,   154,   155,   156,   157,   160,   164,   174,
-     175,   182,   183,   186,   187,   190,   192,   194,   201,   204,
-     207,   208,   211,   212,   213,   214,   215,   216,   217,   218,
-     219,   220,   221,   222,   223,   224,   225,   226,   227,   228,
-     229,   230,   231,   234,   235,   236,   237,   238,   242,   255,
-     257,   262,   304,   342,   385,   386,   388,   390,   391,   394,
-     396,   400,   402,   404,   406,   408,   411,   412,   418,   443,
-     459,   468,   469,   471,   475,   476,   478,   480,   482,   484
+     151,   152,   153,   154,   155,   156,   157,   160,   184,   194,
+     195,   202,   203,   206,   207,   210,   212,   214,   221,   224,
+     227,   228,   231,   232,   233,   234,   235,   236,   237,   238,
+     239,   240,   241,   242,   243,   244,   245,   246,   247,   248,
+     249,   250,   251,   254,   255,   256,   257,   258,   262,   275,
+     277,   282,   324,   362,   405,   406,   408,   410,   411,   414,
+     416,   420,   422,   424,   426,   428,   431,   432,   438,   463,
+     479,   488,   489,   491,   495,   496,   498,   500,   502,   504
 };
 #endif
 
@@ -1691,8 +1691,34 @@ yyreduce:
 #line 1692 "syntaxic.tab.c"
     break;
 
+  case 17: /* DeclarationInitialisation: DeclarationSimple TOK_AFFECT Expression  */
+#line 160 "syntaxic.y"
+                                           {
+            if((yyvsp[-2].NodeSymbol) != NULL){
+            if((yyvsp[-2].NodeSymbol)->tokenType == (yyvsp[0].expression).type){
+                char valeurString[255];
+                valeurToString((yyvsp[0].expression), valeurString);
+                setValue((yyvsp[-2].NodeSymbol), valeurString);
+                if((yyvsp[0].expression).isVariable)
+                {
+                    Quadruplet = addQuad(Quadruplet, ":=", (yyvsp[0].expression).nomVariable, "", (yyvsp[-2].NodeSymbol)->symbolName, qc);
+                }
+                else
+                {
+                                        Quadruplet = addQuad(Quadruplet, ":=", valeurString, "", (yyvsp[-2].NodeSymbol)->symbolName, qc);
+
+                }
+                qc++;
+            }else{
+                yyerrorSemantic( "Type mismatch");
+            }
+        }
+    }
+#line 1718 "syntaxic.tab.c"
+    break;
+
   case 18: /* DeclarationSimple: SimpleType TOK_ID  */
-#line 164 "syntaxic.y"
+#line 184 "syntaxic.y"
                       {
         if(search(symboleTable, (yyvsp[0].nomVariable)) == NULL){
             // Si l'ID n'existe pas alors l'inserer
@@ -1703,41 +1729,41 @@ yyreduce:
             (yyval.NodeSymbol) = NULL;
         }
     }
-#line 1707 "syntaxic.tab.c"
+#line 1733 "syntaxic.tab.c"
     break;
 
   case 53: /* Valeur: TOK_INT_T  */
-#line 234 "syntaxic.y"
+#line 254 "syntaxic.y"
               { (yyval.expression).type = TYPE_INTEGER; (yyval.expression).valeurInteger = (yyvsp[0].valeurInteger); }
-#line 1713 "syntaxic.tab.c"
+#line 1739 "syntaxic.tab.c"
     break;
 
   case 54: /* Valeur: TOK_FLOAT_T  */
-#line 235 "syntaxic.y"
+#line 255 "syntaxic.y"
                   { (yyval.expression).type = TYPE_FLOAT; (yyval.expression).valeurFloat = (yyvsp[0].valeurFloat); }
-#line 1719 "syntaxic.tab.c"
+#line 1745 "syntaxic.tab.c"
     break;
 
   case 55: /* Valeur: TOK_STR_T  */
-#line 236 "syntaxic.y"
+#line 256 "syntaxic.y"
                 { (yyval.expression).type = TYPE_STRING; strcpy((yyval.expression).valeurString, (yyvsp[0].valeurString)); }
-#line 1725 "syntaxic.tab.c"
+#line 1751 "syntaxic.tab.c"
     break;
 
   case 56: /* Valeur: TOK_TRUE  */
-#line 237 "syntaxic.y"
+#line 257 "syntaxic.y"
                { (yyval.expression).type = TYPE_BOOLEAN; (yyval.expression).Valeurboolean = (yyvsp[0].Valeurboolean); }
-#line 1731 "syntaxic.tab.c"
+#line 1757 "syntaxic.tab.c"
     break;
 
   case 57: /* Valeur: TOK_FALSE  */
-#line 238 "syntaxic.y"
+#line 258 "syntaxic.y"
                 { (yyval.expression).type = TYPE_BOOLEAN; (yyval.expression).Valeurboolean = (yyvsp[0].Valeurboolean); }
-#line 1737 "syntaxic.tab.c"
+#line 1763 "syntaxic.tab.c"
     break;
 
   case 58: /* Variable: TOK_ID  */
-#line 242 "syntaxic.y"
+#line 262 "syntaxic.y"
            {
         NodeSymbol * node = search(symboleTable, (yyvsp[0].nomVariable));
         if(node==NULL){
@@ -1747,11 +1773,11 @@ yyreduce:
             (yyval.variable).nodeSymbole = node;
         }
     }
-#line 1751 "syntaxic.tab.c"
+#line 1777 "syntaxic.tab.c"
     break;
 
   case 61: /* Affectation: Variable TOK_AFFECT Expression  */
-#line 263 "syntaxic.y"
+#line 283 "syntaxic.y"
         {
             if((yyvsp[-2].variable).nodeSymbole != NULL){
             if((yyvsp[-2].variable).nodeSymbole->isConstant && (yyvsp[-2].variable).nodeSymbole->hasBeenInitialized){
@@ -1793,11 +1819,11 @@ yyreduce:
         }
         }
     }
-#line 1797 "syntaxic.tab.c"
+#line 1823 "syntaxic.tab.c"
     break;
 
   case 62: /* Affectation: Variable TOK_INC  */
-#line 304 "syntaxic.y"
+#line 324 "syntaxic.y"
                        {
         if((yyvsp[-1].variable).nodeSymbole != NULL){
             if(!(yyvsp[-1].variable).nodeSymbole->hasBeenInitialized){
@@ -1836,11 +1862,11 @@ yyreduce:
             }
         }
         }
-#line 1840 "syntaxic.tab.c"
+#line 1866 "syntaxic.tab.c"
     break;
 
   case 63: /* Affectation: Variable TOK_DEC  */
-#line 342 "syntaxic.y"
+#line 362 "syntaxic.y"
                        {
             if((yyvsp[-1].variable).nodeSymbole != NULL){
             if(!(yyvsp[-1].variable).nodeSymbole->hasBeenInitialized){
@@ -1880,11 +1906,11 @@ yyreduce:
             }
         }
         }
-#line 1884 "syntaxic.tab.c"
+#line 1910 "syntaxic.tab.c"
     break;
 
   case 78: /* While: DebutWhile Bloc TOK_ACC_FER  */
-#line 418 "syntaxic.y"
+#line 438 "syntaxic.y"
                                 { // routineFinWhile
     // ici c'est la fin du while
 	char adresse[10];
@@ -1908,11 +1934,11 @@ hola();
     Quadruplet = updateQuad(Quadruplet ,qc, adresse);
 
 }
-#line 1912 "syntaxic.tab.c"
+#line 1938 "syntaxic.tab.c"
     break;
 
   case 79: /* DebutWhile: ConditionWhile Expression TOK_PAR_FER TOK_ACC_OUV  */
-#line 443 "syntaxic.y"
+#line 463 "syntaxic.y"
                                                        { //routineDebutWhile
     // ici c'est le debut de while
     if((yyvsp[-2].expression).type == TYPE_BOOLEAN){
@@ -1927,21 +1953,21 @@ hola();
         yyerrorSemantic( "Non boolean expression found");
     }
 }
-#line 1931 "syntaxic.tab.c"
+#line 1957 "syntaxic.tab.c"
     break;
 
   case 80: /* ConditionWhile: TOK_WHILE TOK_PAR_OUV  */
-#line 459 "syntaxic.y"
+#line 479 "syntaxic.y"
                           { // routineCondWhile
     // ici on est avant la condition du while
     ajouter(StockSauv,qc); // on sauvgarde l'addresse de cette quadreplet 
     // it think it's qc-1 car on incrémonte le qc aprés l'insertion
 }
-#line 1941 "syntaxic.tab.c"
+#line 1967 "syntaxic.tab.c"
     break;
 
 
-#line 1945 "syntaxic.tab.c"
+#line 1971 "syntaxic.tab.c"
 
       default: break;
     }
@@ -2165,7 +2191,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 486 "syntaxic.y"
+#line 506 "syntaxic.y"
 
 void yysuccess(char *s){
     //fprintf(stdout, "%d: %s, col:%d\n", yylineno, s,currentColumn);
