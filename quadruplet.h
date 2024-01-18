@@ -15,4 +15,3 @@ quad teteQuad(char opra[], char opr1[], char opr2[], char res[], int i);
 quad addQuad(quad tete, char opra[], char opr1[], char opr2[], char res[], int i);
 quad updateQuad(quad tete, int qc, char *adr);
 void displayQuad(quad L);
-void hola();

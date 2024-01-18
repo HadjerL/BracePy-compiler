@@ -1,2 +1,0 @@
-flex lexical.l
-bison -d syntaxic.y
